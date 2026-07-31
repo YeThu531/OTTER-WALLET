@@ -1,492 +1,454 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Otter Wallet - Deposit & Withdraw</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        :root {
-            --bg-color: #0b0e14;
-            --card-bg: #161b26;
-            --primary-accent: #10b981;
-            --secondary-accent: #6366f1;
-            --text-main: #ffffff;
-            --text-sub: #8a93a6;
-            --border-color: #232a3b;
-            --danger-color: #ef4444;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Otter Wallet</title>
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
+<style>
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+:root{
+--bg:#070b14;
+--card:#101827;
+--accent:#10b981;
+--accent2:#6366f1;
+--text:#fff;
+--sub:#94a3b8;
+}
 
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,sans-serif;
+}
 
-        .avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
+body{
+background:
+radial-gradient(circle at top,#172554,#070b14);
+color:white;
+padding:15px;
+padding-bottom:90px;
+}
 
-        .network-badge {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            color: var(--primary-accent);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+/* HEADER */
 
-        .network-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--primary-accent);
-            border-radius: 50%;
-        }
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:rgba(255,255,255,.05);
+backdrop-filter:blur(15px);
+padding:15px;
+border-radius:20px;
+border:1px solid rgba(255,255,255,.08);
+margin-bottom:15px;
+}
 
-        /* Pre-Order Banner */
-        .preorder-card {
-            background: linear-gradient(135deg, #2a1b4e 0%, #161b26 100%);
-            border: 1px solid var(--secondary-accent);
-            border-radius: 20px;
-            padding: 18px;
-        }
+.user{
+display:flex;
+align-items:center;
+gap:10px;
+}
 
-        .preorder-title {
-            color: var(--secondary-accent);
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 6px;
-        }
+.avatar{
+width:45px;
+height:45px;
+border-radius:50%;
+background:linear-gradient(135deg,#10b981,#06b6d4);
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:bold;
+font-size:18px;
+}
 
-        .preorder-box {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 12px;
-        }
+.network{
+background:#0f172a;
+padding:8px 12px;
+border-radius:20px;
+font-size:12px;
+color:#10b981;
+}
 
-        .input-group {
-            display: flex;
-            gap: 8px;
-        }
+/* HERO */
 
-        select, input {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 14px;
-            width: 100%;
-        }
+.hero{
+background:
+linear-gradient(135deg,#10b981,#06b6d4);
+padding:25px;
+border-radius:25px;
+text-align:center;
+margin-bottom:15px;
+box-shadow:0 10px 30px rgba(16,185,129,.25);
+}
 
-        select { flex: 1; }
-        input { flex: 2; }
+.hero h2{
+font-size:34px;
+font-weight:800;
+}
 
-        .btn-preorder {
-            background: linear-gradient(135deg, var(--secondary-accent), #4f46e5);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+.hero p{
+opacity:.9;
+margin-top:5px;
+}
 
-        /* Asset Cards */
-        .asset-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+/* PRESALE */
 
-        .asset-card {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid var(--border-color);
-        }
+.presale{
+background:rgba(255,255,255,.05);
+backdrop-filter:blur(20px);
+padding:20px;
+border-radius:25px;
+border:1px solid rgba(255,255,255,.08);
+margin-bottom:15px;
+}
 
-        .asset-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+.presale h3{
+margin-bottom:10px;
+}
 
-        .crypto-logo {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
-        }
+.input-group{
+display:flex;
+gap:10px;
+margin-top:15px;
+}
 
-        .otter-bg { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .usdt-bg { background: #26a17b; color: #fff; }
-        .btc-bg { background: #f7931a; color: #fff; }
-        .eth-bg { background: #627eea; color: #fff; }
+select,input{
+flex:1;
+background:#0f172a;
+border:none;
+padding:12px;
+border-radius:12px;
+color:white;
+}
 
-        .action-btns {
-            display: flex;
-            gap: 6px;
-        }
+.buy-btn{
+width:100%;
+margin-top:12px;
+padding:14px;
+border:none;
+border-radius:15px;
+background:linear-gradient(135deg,#6366f1,#8b5cf6);
+color:white;
+font-weight:700;
+cursor:pointer;
+}
 
-        .btn-action {
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 11px;
-            cursor: pointer;
-            font-weight: 600;
-        }
+/* ASSET CARD */
 
-        .btn-deposit {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--primary-accent);
-            border: 1px solid var(--primary-accent);
-        }
+.assets-title{
+margin-bottom:12px;
+}
 
-        .btn-withdraw {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--danger-color);
-            border: 1px solid var(--danger-color);
-        }
+.asset-card{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:rgba(255,255,255,.05);
+backdrop-filter:blur(20px);
+border:1px solid rgba(255,255,255,.08);
+padding:15px;
+border-radius:20px;
+margin-bottom:12px;
+}
 
-        /* Modal Windows */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            z-index: 1000;
-        }
+.asset-left{
+display:flex;
+align-items:center;
+gap:12px;
+}
 
-        .modal-content {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 20px;
-            width: 100%;
-            max-width: 350px;
-            text-align: center;
-        }
+.coin{
+width:50px;
+height:50px;
+border-radius:50%;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:20px;
+font-weight:bold;
+}
 
-        .qr-placeholder {
-            width: 130px; height: 130px;
-            background: #fff;
-            margin: 15px auto;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #000;
-            font-weight: bold;
-        }
+.otter{
+background:linear-gradient(135deg,#f59e0b,#ea580c);
+}
 
-        .wallet-address {
-            background: var(--bg-color);
-            padding: 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            word-break: break-all;
-            color: var(--text-sub);
-            margin-bottom: 12px;
-        }
+.usdt{
+background:#26a17b;
+}
 
-        .form-group {
-            margin-bottom: 12px;
-            text-align: left;
-        }
+.btc{
+background:#f7931a;
+}
 
-        .form-group label {
-            font-size: 12px;
-            color: var(--text-sub);
-            display: block;
-            margin-bottom: 4px;
-        }
-    </style>
+.eth{
+background:#627eea;
+}
+
+.asset-name{
+font-weight:700;
+}
+
+.asset-sub{
+font-size:12px;
+color:var(--sub);
+}
+
+.balance{
+text-align:right;
+}
+
+.btns{
+display:flex;
+gap:6px;
+margin-top:5px;
+}
+
+.btn{
+padding:6px 10px;
+border:none;
+border-radius:8px;
+font-size:11px;
+cursor:pointer;
+font-weight:600;
+}
+
+.deposit{
+background:#10b981;
+color:white;
+}
+
+.withdraw{
+background:#ef4444;
+color:white;
+}
+
+/* BOTTOM NAV */
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+background:#0f172a;
+display:flex;
+justify-content:space-around;
+padding:12px;
+border-top:1px solid rgba(255,255,255,.08);
+}
+
+.nav-item{
+text-align:center;
+font-size:12px;
+color:#94a3b8;
+}
+
+.nav-item i{
+display:block;
+font-size:20px;
+margin-bottom:4px;
+}
+
+.active{
+color:#10b981;
+}
+
+</style>
 </head>
+
 <body>
 
-    <!-- Header -->
-    <div class="header">
-        <div class="user-profile">
-            <div class="avatar" id="user-avatar">O</div>
-            <span id="user-name" style="font-weight: 600;">Welcome, User</span>
-        </div>
-        <div class="network-badge">
-            <div class="network-dot"></div>
-            Otter Chain
-        </div>
-    </div>
+<div class="header">
+<div class="user">
+<div class="avatar">O</div>
+<div>
+<div style="font-weight:700">Otter User</div>
+<div style="font-size:12px;color:#94a3b8">Welcome Back</div>
+</div>
+</div>
 
-    <!-- Pre-Order Section -->
-    <div class="preorder-card">
-        <div class="preorder-title">🚀 Otter Coin Pre-Order (Presale)</div>
-        <p style="font-size: 12px; color: var(--text-sub);">Deposit coins & Pre-order OTTER before listing! (1 USDT = 100 OTTER)</p>
-        
-        <div class="preorder-box">
-            <div class="input-group">
-                <select id="pay-coin" onchange="calculateOtter()">
-                    <option value="USDT">USDT</option>
-                    <option value="BTC">BTC</option>
-                    <option value="ETH">ETH</option>
-                </select>
-                <input type="number" id="pay-amount" placeholder="Amount to spend" oninput="calculateOtter()">
-            </div>
-            <p style="font-size: 13px; color: var(--primary-accent);">You will get: <b id="get-otter">0</b> OTTER</p>
-            <button class="btn-preorder" onclick="buyPreOrder()">Buy Pre-Order Now</button>
-        </div>
-    </div>
+<div class="network">
+● Otter Chain
+</div>
+</div>
 
-    <!-- Assets List -->
-    <div>
-        <h3 style="margin-bottom: 12px;">Wallet Assets</h3>
-        
-        <div class="asset-list">
-            <!-- Otter Coin -->
-            <div class="asset-card">
-                <div class="asset-info">
-                    <div class="crypto-logo otter-bg">🦦</div>
-                    <div>
-                        <h4>OTTER</h4>
-                        <p style="font-size: 12px; color: var(--text-sub);">Pre-ordered Token</p>
-                    </div>
-                </div>
-                <div style="text-align: right;">
-                    <h4 id="otter-balance">0 OTTER</h4>
-                    <button class="btn-action btn-withdraw" onclick="alert('OTTER COIN ထုတ်ယူခွင့်ကို Mainnet Launch ပြီးမှ ဖွင့်လှစ်ပေးပါမည်။')">Withdraw</button>
-                </div>
-            </div>
+<div class="hero">
+<h2>$12,540</h2>
+<p>Total Portfolio Value</p>
+</div>
 
-            <!-- USDT -->
-            <div class="asset-card">
-                <div class="asset-info">
-                    <div class="crypto-logo usdt-bg">₮</div>
-                    <div>
-                        <h4>USDT</h4>
-                        <p id="usdt-bal" style="font-size: 12px; color: var(--text-sub);">Bal: 0.00</p>
-                    </div>
-                </div>
-                <div class="action-btns">
-                    <button class="btn-action btn-deposit" onclick="openDepositModal('USDT', '0x1234...USDT_TRC20_Address')">Deposit</button>
-                    <button class="btn-action btn-withdraw" onclick="openWithdrawModal('USDT')">Withdraw</button>
-                </div>
-            </div>
+<div class="presale">
+<h3>🚀 OTTER Presale</h3>
 
-            <!-- Bitcoin -->
-            <div class="asset-card">
-                <div class="asset-info">
-                    <div class="crypto-logo btc-bg"><i class="fa-brands fa-bitcoin"></i></div>
-                    <div>
-                        <h4>Bitcoin</h4>
-                        <p id="btc-bal" style="font-size: 12px; color: var(--text-sub);">Bal: 0.0000</p>
-                    </div>
-                </div>
-                <div class="action-btns">
-                    <button class="btn-action btn-deposit" onclick="openDepositModal('BTC', 'bc1q...BTC_Address')">Deposit</button>
-                    <button class="btn-action btn-withdraw" onclick="openWithdrawModal('BTC')">Withdraw</button>
-                </div>
-            </div>
+<p style="color:#94a3b8;font-size:13px;">
+Buy OTTER before exchange listing
+<br>
+1 USDT = 100 OTTER
+</p>
 
-            <!-- Ethereum -->
-            <div class="asset-card">
-                <div class="asset-info">
-                    <div class="crypto-logo eth-bg"><i class="fa-brands fa-ethereum"></i></div>
-                    <div>
-                        <h4>Ethereum</h4>
-                        <p id="eth-bal" style="font-size: 12px; color: var(--text-sub);">Bal: 0.0000</p>
-                    </div>
-                </div>
-                <div class="action-btns">
-                    <button class="btn-action btn-deposit" onclick="openDepositModal('ETH', '0x1234...ETH_ERC20_Address')">Deposit</button>
-                    <button class="btn-action btn-withdraw" onclick="openWithdrawModal('ETH')">Withdraw</button>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="input-group">
+<select>
+<option>USDT</option>
+<option>BTC</option>
+<option>ETH</option>
+</select>
 
-    <!-- Deposit Modal -->
-    <div class="modal" id="deposit-modal">
-        <div class="modal-content">
-            <h3 id="dep-coin-title">Deposit Crypto</h3>
-            <div class="qr-placeholder">QR CODE</div>
-            <p style="font-size: 12px; color: var(--text-sub);">Deposit Address:</p>
-            <div class="wallet-address" id="dep-address">0x0000000000000000</div>
-            <button class="btn-action btn-deposit" style="width: 100%; padding: 10px;" onclick="closeModal('deposit-modal')">Done</button>
-        </div>
-    </div>
+<input placeholder="Amount">
+</div>
 
-    <!-- Withdraw Modal -->
-    <div class="modal" id="withdraw-modal">
-        <div class="modal-content">
-            <h3 id="with-coin-title">Withdraw Crypto</h3>
-            <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">External Wallet ဆီ ထုတ်ယူမည်</p>
-            
-            <div class="form-group">
-                <label>Recipient Address</label>
-                <input type="text" id="with-address" placeholder="Enter Wallet Address">
-            </div>
+<button class="buy-btn">
+Buy OTTER Now
+</button>
+</div>
 
-            <div class="form-group">
-                <label>Amount</label>
-                <input type="number" id="with-amount" placeholder="0.00">
-            </div>
+<h3 class="assets-title">Wallet Assets</h3>
 
-            <div style="display: flex; gap: 8px; margin-top: 16px;">
-                <button class="btn-action btn-withdraw" style="flex: 1; padding: 10px;" onclick="processWithdrawal()">Confirm Withdraw</button>
-                <button class="btn-action" style="flex: 1; padding: 10px; background: #333; color: #fff;" onclick="closeModal('withdraw-modal')">Cancel</button>
-            </div>
-        </div>
-    </div>
+<div class="asset-card">
 
-    <script>
-        // Telegram WebApp Setup
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.ready();
-            const user = window.Telegram.WebApp.initDataUnsafe.user;
-            if (user) {
-                document.getElementById('user-name').innerText = user.first_name;
-                document.getElementById('user-avatar').innerText = user.first_name.charAt(0).toUpperCase();
-            }
-        }
+<div class="asset-left">
+<div class="coin otter">🦦</div>
 
-        // Balances Initial State
-        let otterBal = parseFloat(localStorage.getItem('otter_bal')) || 0;
-        let usdtBal = parseFloat(localStorage.getItem('usdt_bal')) || 100.00;
-        let btcBal = parseFloat(localStorage.getItem('btc_bal')) || 0.005;
-        let ethBal = parseFloat(localStorage.getItem('eth_bal')) || 0.05;
+<div>
+<div class="asset-name">OTTER</div>
+<div class="asset-sub">Presale Token</div>
+</div>
+</div>
 
-        let activeWithdrawCoin = '';
+<div class="balance">
+<div>15,000 OTTER</div>
 
-        function updateUI() {
-            document.getElementById('otter-balance').innerText = `${otterBal.toFixed(2)} OTTER`;
-            document.getElementById('usdt-bal').innerText = `Bal: ${usdtBal.toFixed(2)}`;
-            document.getElementById('btc-bal').innerText = `Bal: ${btcBal.toFixed(4)}`;
-            document.getElementById('eth-bal').innerText = `Bal: ${ethBal.toFixed(4)}`;
-        }
-        updateUI();
+<div class="btns">
+<button class="btn withdraw">Locked</button>
+</div>
 
-        // Calculate Pre-Order Rate
-        function calculateOtter() {
-            const coin = document.getElementById('pay-coin').value;
-            const amount = parseFloat(document.getElementById('pay-amount').value) || 0;
-            let otterAmount = 0;
+</div>
 
-            if (coin === 'USDT') otterAmount = amount * 100;
-            if (coin === 'BTC') otterAmount = amount * 6000000;
-            if (coin === 'ETH') otterAmount = amount * 300000;
+</div>
 
-            document.getElementById('get-otter').innerText = otterAmount.toLocaleString();
-        }
+<div class="asset-card">
 
-        // Buy Pre-Order
-        function buyPreOrder() {
-            const coin = document.getElementById('pay-coin').value;
-            const amount = parseFloat(document.getElementById('pay-amount').value) || 0;
+<div class="asset-left">
+<div class="coin usdt">₮</div>
 
-            if (amount <= 0) return alert("ပမာဏ မှန်ကန်စွာ ရိုက်ထည့်ပါ။");
+<div>
+<div class="asset-name">USDT</div>
+<div class="asset-sub">Balance 100.00</div>
+</div>
+</div>
 
-            if (coin === 'USDT' && usdtBal >= amount) { usdtBal -= amount; otterBal += amount * 100; }
-            else if (coin === 'BTC' && btcBal >= amount) { btcBal -= amount; otterBal += amount * 6000000; }
-            else if (coin === 'ETH' && ethBal >= amount) { ethBal -= amount; otterBal += amount * 300000; }
-            else { return alert(`လက်ကျန် ${coin} မလုံလောက်ပါ။ ကျေးဇူးပြု၍ Deposit အရင်ပြုလုပ်ပါ။`); }
+<div class="btns">
+<button class="btn deposit">Deposit</button>
+<button class="btn withdraw">Withdraw</button>
+</div>
 
-            saveData();
-            updateUI();
-            alert("Pre-Order ဝယ်ယူမှု အောင်မြင်ပါသည်။");
-            document.getElementById('pay-amount').value = '';
-            calculateOtter();
-        }
+</div>
 
-        // Withdrawal System Logic
-        function openWithdrawModal(coin) {
-            activeWithdrawCoin = coin;
-            document.getElementById('with-coin-title').innerText = `Withdraw ${coin}`;
-            document.getElementById('withdraw-modal').style.display = 'flex';
-        }
+<div class="asset-card">
 
-        function processWithdrawal() {
-            const address = document.getElementById('with-address').value.trim();
-            const amount = parseFloat(document.getElementById('with-amount').value) || 0;
+<div class="asset-left">
+<div class="coin btc">
+<i class="fa-brands fa-bitcoin"></i>
+</div>
 
-            if (!address) return alert("Wallet Address ရိုက်ထည့်ပါ။");
-            if (amount <= 0) return alert("ထုတ်ယူမည့် ပမာဏ ရိုက်ထည့်ပါ။");
+<div>
+<div class="asset-name">Bitcoin</div>
+<div class="asset-sub">0.005 BTC</div>
+</div>
+</div>
 
-            if (activeWithdrawCoin === 'USDT' && usdtBal >= amount) { usdtBal -= amount; }
-            else if (activeWithdrawCoin === 'BTC' && btcBal >= amount) { btcBal -= amount; }
-            else if (activeWithdrawCoin === 'ETH' && ethBal >= amount) { ethBal -= amount; }
-            else { return alert(`လက်ကျန် ${activeWithdrawCoin} မလုံလောက်ပါ။`); }
+<div class="btns">
+<button class="btn deposit">Deposit</button>
+<button class="btn withdraw">Withdraw</button>
+</div>
 
-            saveData();
-            updateUI();
-            alert(`${amount} ${activeWithdrawCoin} ကို ${address} သို့ ထုတ်ယူရန် လျှောက်ထားမှု အောင်မြင်ပါသည်။`);
-            closeModal('withdraw-modal');
-            document.getElementById('with-address').value = '';
-            document.getElementById('with-amount').value = '';
-        }
+</div>
 
-        // Modal Helpers
-        function openDepositModal(coin, address) {
-            document.getElementById('dep-coin-title').innerText = `Deposit ${coin}`;
-            document.getElementById('dep-address').innerText = address;
-            document.getElementById('deposit-modal').style.display = 'flex';
-        }
+<div class="asset-card">
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
+<div class="asset-left">
+<div class="coin eth">
+<i class="fa-brands fa-ethereum"></i>
+</div>
 
-        function saveData() {
-            localStorage.setItem('otter_bal', otterBal);
-            localStorage.setItem('usdt_bal', usdtBal);
-            localStorage.setItem('btc_bal', btcBal);
-            localStorage.setItem('eth_bal', ethBal);
-        }
-    </script>
+<div>
+<div class="asset-name">Ethereum</div>
+<div class="asset-sub">0.05 ETH</div>
+</div>
+</div>
+
+<div class="btns">
+<button class="btn deposit">Deposit</button>
+<button class="btn withdraw">Withdraw</button>
+</div>
+
+</div>
+
+<div class="bottom-nav">
+
+<div class="nav-item active">
+<i class="fa-solid fa-wallet"></i>
+Wallet
+</div>
+
+<div class="nav-item">
+<i class="fa-solid fa-coins"></i>
+Earn
+</div>
+
+<div class="nav-item">
+<i class="fa-solid fa-users"></i>
+Team
+</div>
+
+<div class="nav-item">
+<i class="fa-solid fa-gear"></i>
+More
+</div>
+
+</div>
+
 </body>
-  </html>
+    </html>
+        
+            
+        
+
+        
+            
+
+        
+            
+        
+
+        
+
+        
+
+        
+
+        
+        
+
+        
+        
+
+        
+
+        
+
+        
+
+        
+        
+
+        
+        
+
+
+        
+            
+
+    
