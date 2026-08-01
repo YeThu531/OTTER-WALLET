@@ -11,7 +11,6 @@
   --bg: #070b14;
   --card: rgba(255, 255, 255, 0.05);
   --accent: #10b981;
-  --accent2: #6366f1;
   --text: #fff;
   --sub: #94a3b8;
 }
@@ -170,7 +169,6 @@ body {
 .otter { background: linear-gradient(135deg, #f59e0b, #ea580c); }
 .usdt { background: #26a17b; }
 .btc { background: #f7931a; }
-.eth { background: #627eea; }
 .ton { background: #0088cc; }
 
 .asset-name { font-weight: 700; }
@@ -195,6 +193,7 @@ body {
 .deposit { background: #10b981; color: white; }
 .withdraw { background: #ef4444; color: white; }
 .convert { background: #6366f1; color: white; }
+.locked { background: #475569; color: #cbd5e1; cursor: not-allowed; }
 
 /* MARKET CARDS */
 .market-card {
@@ -257,19 +256,32 @@ body {
   padding: 20px;
   border-radius: 20px;
   width: 90%;
-  max-width: 350px;
+  max-width: 360px;
   text-align: center;
   border: 1px solid rgba(255,255,255,0.1);
 }
 
-.modal-content input {
+.modal-content input, .modal-content select {
   width: 100%;
-  padding: 10px;
-  margin: 15px 0;
+  padding: 12px;
+  margin: 8px 0;
   border-radius: 10px;
   border: none;
   background: #0f172a;
   color: white;
+  font-size: 14px;
+}
+
+.address-box {
+  background: #0f172a;
+  padding: 10px;
+  border-radius: 10px;
+  word-break: break-all;
+  font-family: monospace;
+  font-size: 12px;
+  color: #10b981;
+  margin: 10px 0;
+  border: 1px dashed #10b981;
 }
 
 .page { display: none; }
@@ -289,14 +301,14 @@ body {
       <div class="wallet-address" id="userAddress">0x000...000</div>
     </div>
   </div>
-  <div class="network">● Otter Chain</div>
+  <div class="network">● Multi-Chain</div>
 </div>
 
-<!-- PAGE 1: WALLET (HOME) -->
+<!-- PAGE 1: WALLET -->
 <div id="walletPage" class="page active">
   <div class="hero">
     <h2 id="totalBalance">$0.00</h2>
-    <p>Total Estimated Balance</p>
+    <p>Total Portfolio Value</p>
   </div>
 
   <!-- AIRDROP CLAIM SECTION -->
@@ -308,7 +320,7 @@ body {
 
   <h3 class="section-title">Wallet Assets</h3>
 
-  <!-- OTTER TOKEN -->
+  <!-- OTTER AIRDROP TOKEN (LISTING SOON) -->
   <div class="asset-card">
     <div class="asset-left">
       <div class="coin otter">🦦</div>
@@ -320,7 +332,7 @@ body {
     <div class="balance">
       <div id="otterBal" style="font-weight: bold;">0 OTTER</div>
       <div class="btns">
-        <button class="btn convert" onclick="openModal('convert')">Convert</button>
+        <button class="btn locked" onclick="alert('OTTER coin will be unlocked after Exchange Listing!')">🔒 Listing Soon</button>
       </div>
     </div>
   </div>
@@ -331,14 +343,14 @@ body {
       <div class="coin usdt">₮</div>
       <div>
         <div class="asset-name">USDT</div>
-        <div class="asset-sub">Tether USD</div>
+        <div class="asset-sub">Tether (TRC20)</div>
       </div>
     </div>
     <div class="balance">
       <div id="usdtBal" style="font-weight: bold;">0.00 USDT</div>
       <div class="btns">
-        <button class="btn deposit" onclick="openModal('deposit', 'USDT')">Deposit</button>
-        <button class="btn withdraw" onclick="openModal('withdraw', 'USDT')">Withdraw</button>
+        <button class="btn deposit" onclick="openDepositModal('USDT', 'TRC20', 'T9xR2pK...OtterUsdtAddr')">Deposit</button>
+        <button class="btn withdraw" onclick="openWithdrawModal('USDT')">Withdraw</button>
       </div>
     </div>
   </div>
@@ -349,20 +361,41 @@ body {
       <div class="coin ton"><i class="fa-solid fa-gem"></i></div>
       <div>
         <div class="asset-name">TON</div>
-        <div class="asset-sub">Toncoin</div>
+        <div class="asset-sub">TON Network</div>
       </div>
     </div>
     <div class="balance">
       <div id="tonBal" style="font-weight: bold;">0.00 TON</div>
       <div class="btns">
-        <button class="btn deposit" onclick="openModal('deposit', 'TON')">Deposit</button>
-        <button class="btn withdraw" onclick="openModal('withdraw', 'TON')">Withdraw</button>
+        <button class="btn deposit" onclick="openDepositModal('TON', 'TON Network', 'EQD...OtterTonAddress')">Deposit</button>
+        <button class="btn withdraw" onclick="openWithdrawModal('TON')">Withdraw</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BTC -->
+  <div class="asset-card">
+    <div class="asset-left">
+      <div class="coin btc"><i class="fa-brands fa-bitcoin"></i></div>
+      <div>
+        <div class="asset-name">BTC</div>
+        <div class="asset-sub">Bitcoin</div>
+      </div>
+    </div>
+    <div class="balance">
+      <div id="btcBal" style="font-weight: bold;">0.0000 BTC</div>
+      <div class="btns">
+        <button class="btn deposit" onclick="openDepositModal('BTC', 'Bitcoin Network', '1A1zP1...OtterBtcAddr')">Deposit</button>
+        <button class="btn withdraw" onclick="openWithdrawModal('BTC')">Withdraw</button>
       </div>
     </div>
   </div>
 
   <!-- LIVE MARKET PRICES (BINANCE) -->
-  <h3 class="section-title">Live Binance Market</h3>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin: 15px 0 10px 0;">
+    <h3 class="section-title" style="margin:0;">Live Binance Prices</h3>
+    <button class="btn convert" onclick="openConvertModal()">🔄 Convert Crypto</button>
+  </div>
   <div id="marketList">
     <div class="market-card"><span>Loading Binance Prices...</span></div>
   </div>
@@ -374,7 +407,6 @@ body {
     <i class="fa-solid fa-list-check" style="font-size: 40px; color: #10b981; margin-bottom: 15px;"></i>
     <h2>Airdrop Quests & Tasks</h2>
     <p style="color:#94a3b8; margin-top: 10px;">⏳ Status: <b style="color:#f59e0b">COMING SOON</b></p>
-    <p style="font-size: 12px; color: #64748b; margin-top: 15px;">Complete social tasks to earn extra $OTTER tokens in the next update.</p>
   </div>
 </div>
 
@@ -388,56 +420,40 @@ body {
   </div>
 </div>
 
-<!-- GENERAL MODAL -->
+<!-- MODAL CONTAINER -->
 <div id="actionModal" class="modal">
-  <div class="modal-content">
-    <h3 id="modalTitle">Action</h3>
-    <p id="modalDesc" style="font-size:12px; color:#94a3b8; margin-top:5px;"></p>
-    <input type="number" id="modalInput" placeholder="Enter amount">
-    <div style="display:flex; gap:10px;">
-      <button class="btn deposit" style="flex:1; padding:10px;" onclick="processAction()">Confirm</button>
-      <button class="btn withdraw" style="flex:1; padding:10px;" onclick="closeModal()">Cancel</button>
-    </div>
+  <div class="modal-content" id="modalBody">
+    <!-- Dynamic JS Content -->
   </div>
 </div>
 
 <script>
-// --- STATE MANAGEMENT ---
-let balances = {
-  OTTER: 0,
-  USDT: 0.00,
-  TON: 0.00
-};
-
+let balances = { OTTER: 0, USDT: 0.00, TON: 0.00, BTC: 0.0000 };
+let livePrices = { BTC: 0, TON: 0 };
 let lastClaimTime = 0;
-let currentModalType = '';
-let currentCoin = '';
 
-// --- INITIALIZE BOT ---
 window.onload = function() {
   generateWalletAddress();
   fetchBinancePrices();
-  setInterval(fetchBinancePrices, 10000); // 10s တိုင်း Binance Price update ရယူရန်
+  setInterval(fetchBinancePrices, 10000);
   checkClaimStatus();
 };
 
-// --- WALLET GENERATOR ---
 function generateWalletAddress() {
-  const randomHex = Array.from({length: 8}, () => Math.floor(Math.random()*16).toString(16)).join('');
-  const addr = `0x${randomHex}...otter`;
-  document.getElementById('userAddress').innerText = addr;
+  const randomHex = Array.from({length: 6}, () => Math.floor(Math.random()*16).toString(16)).join('');
+  document.getElementById('userAddress').innerText = `0x${randomHex}...otter`;
 }
 
-// --- BINANCE LIVE PRICES ---
 async function fetchBinancePrices() {
   try {
-    const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=["BTCUSDT","ETHUSDT","TONUSDT","SOLUSDT"]');
+    const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=["BTCUSDT","TONUSDT","SOLUSDT"]');
     const data = await res.json();
     
     let html = '';
     data.forEach(coin => {
       const symbol = coin.symbol.replace('USDT', '');
       const price = parseFloat(coin.price).toFixed(2);
+      livePrices[symbol] = parseFloat(price);
       html += `
         <div class="market-card">
           <span style="font-weight:bold;">${symbol}/USDT</span>
@@ -446,22 +462,137 @@ async function fetchBinancePrices() {
       `;
     });
     document.getElementById('marketList').innerHTML = html;
+    updateUI();
   } catch (err) {
     document.getElementById('marketList').innerHTML = '<div class="market-card">Prices unavailable</div>';
   }
 }
 
-// --- AIRDROP CLAIM SYSTEM (24H TIMER) ---
+/* DEPOSIT MODAL (NO DUMMY BALANCES) */
+function openDepositModal(coin, network, address) {
+  const modal = document.getElementById('actionModal');
+  const body = document.getElementById('modalBody');
+  
+  body.innerHTML = `
+    <h3>Deposit ${coin}</h3>
+    <p style="font-size:12px; color:#94a3b8; margin-top:5px;">Send only ${coin} via <b>${network}</b> network to this address:</p>
+    <div class="address-box" id="depAddr">${address}</div>
+    <button class="btn deposit" style="width:100%; padding:10px;" onclick="navigator.clipboard.writeText('${address}'); alert('Address Copied!');">📋 Copy Deposit Address</button>
+    <p style="font-size:11px; color:#ef4444; margin-top:10px;">⚠️ Deposit from Binance/Wallets to this address. Balance updates upon blockchain confirmation.</p>
+    <button class="btn withdraw" style="width:100%; padding:10px; margin-top:10px;" onclick="closeModal()">Close</button>
+  `;
+  modal.style.display = 'flex';
+}
+
+/* WITHDRAW MODAL */
+function openWithdrawModal(coin) {
+  const modal = document.getElementById('actionModal');
+  const body = document.getElementById('modalBody');
+  
+  body.innerHTML = `
+    <h3>Withdraw ${coin}</h3>
+    <p style="font-size:12px; color:#94a3b8; margin-top:5px;">Available: ${balances[coin]} ${coin}</p>
+    <input type="text" id="withdrawAddr" placeholder="Enter Destination ${coin} Address">
+    <input type="number" id="withdrawAmt" placeholder="Enter Amount">
+    <div style="display:flex; gap:10px; margin-top:10px;">
+      <button class="btn deposit" style="flex:1; padding:10px;" onclick="processWithdraw('${coin}')">Submit Request</button>
+      <button class="btn withdraw" style="flex:1; padding:10px;" onclick="closeModal()">Cancel</button>
+    </div>
+  `;
+  modal.style.display = 'flex';
+}
+
+function processWithdraw(coin) {
+  const addr = document.getElementById('withdrawAddr').value;
+  const amt = parseFloat(document.getElementById('withdrawAmt').value);
+
+  if (!addr || !amt || amt <= 0) {
+    alert('Please enter a valid address and amount!');
+    return;
+  }
+  if (balances[coin] < amt) {
+    alert('Insufficient balance!');
+    return;
+  }
+
+  balances[coin] -= amt;
+  updateUI();
+  closeModal();
+  alert(`Withdrawal request of ${amt} ${coin} to ${addr} sent for processing!`);
+}
+
+/* REAL CRYPTO CONVERT (USDT / BTC / TON) */
+function openConvertModal() {
+  const modal = document.getElementById('actionModal');
+  const body = document.getElementById('modalBody');
+
+  body.innerHTML = `
+    <h3>🔄 Convert Cryptos</h3>
+    <p style="font-size:12px; color:#94a3b8;">Swap Cryptos at Live Binance Prices</p>
+    
+    <select id="fromCoin">
+      <option value="USDT">From: USDT (Bal: ${balances.USDT})</option>
+      <option value="TON">From: TON (Bal: ${balances.TON})</option>
+      <option value="BTC">From: BTC (Bal: ${balances.BTC})</option>
+    </select>
+    
+    <select id="toCoin">
+      <option value="TON">To: TON</option>
+      <option value="USDT">To: USDT</option>
+      <option value="BTC">To: BTC</option>
+    </select>
+
+    <input type="number" id="convertAmt" placeholder="Amount to Convert">
+
+    <div style="display:flex; gap:10px; margin-top:10px;">
+      <button class="btn convert" style="flex:1; padding:10px;" onclick="processConvert()">Convert Now</button>
+      <button class="btn withdraw" style="flex:1; padding:10px;" onclick="closeModal()">Cancel</button>
+    </div>
+  `;
+  modal.style.display = 'flex';
+}
+
+function processConvert() {
+  const from = document.getElementById('fromCoin').value;
+  const to = document.getElementById('toCoin').value;
+  const amt = parseFloat(document.getElementById('convertAmt').value);
+
+  if (from === to) {
+    alert('Cannot convert same coin!');
+    return;
+  }
+  if (!amt || amt <= 0 || balances[from] < amt) {
+    alert('Invalid or insufficient balance!');
+    return;
+  }
+
+  // Convert Logic based on Binance Live Rates
+  let fromInUsdt = from === 'USDT' ? amt : amt * (livePrices[from] || 1);
+  let convertedAmount = to === 'USDT' ? fromInUsdt : fromInUsdt / (livePrices[to] || 1);
+
+  balances[from] -= amt;
+  balances[to] += convertedAmount;
+
+  updateUI();
+  closeModal();
+  alert(`Successfully converted ${amt} ${from} to ${convertedAmount.toFixed(4)} ${to}!`);
+}
+
+function closeModal() {
+  document.getElementById('actionModal').style.display = 'none';
+}
+
+/* AIRDROP CLAIM */
 function claimAirdrop() {
   const now = Date.now();
-  const cooldown = 24 * 60 * 60 * 1000; // 24 Hours
+  const cooldown = 24 * 60 * 60 * 1000;
 
   if (now - lastClaimTime >= cooldown) {
     balances.OTTER += 100;
     lastClaimTime = Date.now();
     updateUI();
     checkClaimStatus();
-    alert('🎉 Congratulations! You received 100 $OTTER Coins!');
+    alert('🎉 You claimed 100 $OTTER Coins!');
   }
 }
 
@@ -475,108 +606,29 @@ function checkClaimStatus() {
     const hours = Math.floor(remaining / (1000 * 60 * 60));
     const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
     btn.innerText = `Claimed (Wait ${hours}h ${mins}m)`;
-    setTimeout(checkClaimStatus, 60000); // 1 မိနစ်တိုင်း Timer စစ်ရန်
   } else {
     btn.disabled = false;
     btn.innerText = 'Claim 100 $OTTER';
   }
 }
 
-// --- UPDATE UI ---
 function updateUI() {
   document.getElementById('otterBal').innerText = `${balances.OTTER} OTTER`;
   document.getElementById('usdtBal').innerText = `${balances.USDT.toFixed(2)} USDT`;
   document.getElementById('tonBal').innerText = `${balances.TON.toFixed(2)} TON`;
-  
-  // Total Portfolio Estimated
-  const total = (balances.OTTER * 0.01) + balances.USDT + (balances.TON * 6.5);
+  document.getElementById('btcBal').innerText = `${balances.BTC.toFixed(4)} BTC`;
+
+  let total = balances.USDT + (balances.TON * (livePrices.TON || 0)) + (balances.BTC * (livePrices.BTC || 0));
   document.getElementById('totalBalance').innerText = `$${total.toFixed(2)}`;
 }
 
-// --- MODAL & ACTIONS ---
-function openModal(type, coin = '') {
-  currentModalType = type;
-  currentCoin = coin;
-  const modal = document.getElementById('actionModal');
-  const title = document.getElementById('modalTitle');
-  const desc = document.getElementById('modalDesc');
-  const input = document.getElementById('modalInput');
-
-  input.value = '';
-  modal.style.display = 'flex';
-
-  if (type === 'deposit') {
-    title.innerText = `Deposit ${coin}`;
-    desc.innerText = `Send ${coin} to your wallet address listed in the header.`;
-  } else if (type === 'withdraw') {
-    title.innerText = `Withdraw ${coin}`;
-    desc.innerText = `Minimum withdraw amount applies.`;
-  } else if (type === 'convert') {
-    title.innerText = `Convert $OTTER to USDT`;
-    desc.innerText = `Rate: 100 OTTER = 1 USDT`;
-  }
-}
-
-function closeModal() {
-  document.getElementById('actionModal').style.display = 'none';
-}
-
-function processAction() {
-  const val = parseFloat(document.getElementById('modalInput').value);
-  if (!val || val <= 0) {
-    alert('Please enter a valid amount!');
-    return;
-  }
-
-  if (currentModalType === 'deposit') {
-    balances[currentCoin] += val;
-    alert(`Successfully deposited ${val} ${currentCoin}`);
-  } else if (currentModalType === 'withdraw') {
-    if (balances[currentCoin] >= val) {
-      balances[currentCoin] -= val;
-      alert(`Withdrawal request for ${val} ${currentCoin} submitted.`);
-    } else {
-      alert('Insufficient balance!');
-    }
-  } else if (currentModalType === 'convert') {
-    if (balances.OTTER >= val) {
-      balances.OTTER -= val;
-      balances.USDT += (val / 100);
-      alert(`Converted ${val} OTTER to ${(val / 100).toFixed(2)} USDT`);
-    } else {
-      alert('Insufficient $OTTER balance!');
-    }
-  }
-  
-  updateUI();
-  closeModal();
-}
-
-// --- PAGE NAVIGATION ---
 function switchPage(pageId, element) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  
   document.getElementById(pageId).classList.add('active');
   element.classList.add('active');
 }
 </script>
 
 </body>
-    </html>        
-
-        
-
-        
-
-        
-        
-
-        
-        
-
-
-        
-            
-
-    
+  </html>
