@@ -220,7 +220,7 @@
         <button class="btn" onclick="sendTonTransaction()">
           <i class="fa-solid fa-arrow-down"></i> Deposit TON
         </button>
-        <button class="btn secondary" onclick="alert('Exchange Listing မဝင်သေးပါ။ Listing ဝင်ပြီးမှသာ ထုတ်ယူခွင့် ရပါမည်။')">
+        <button class="btn secondary" onclick="alert('Exchange Listing coming soon')">
           <i class="fa-solid fa-arrow-up"></i> Withdraw
         </button>
       </div>
@@ -301,7 +301,7 @@
 <script>
   // ၁။ TON CONNECT INITIALIZATION
   const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-      manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-client/test-manifest.json',
+      manifestUrl: 'https://yethu531.github.io/OTTER-WALLET/',
       buttonRootId: 'ton-connect'
   });
 
@@ -358,14 +358,15 @@
 
           updateBalanceUI();
           checkClaimStatus();
-          alert("40 $OTTER ရရှိပါပြီ!");
+          alert("40 $OTTER Done!");
       }
   }
 
   // ၅။ TON DEPOSIT TRANSACTION
   async function sendTonTransaction() {
       if (!tonConnectUI.connected) {
-          alert("ကျေးဇူးပြု၍ Connect Wallet ကို အရင်နှိပ်ပေးပါ!");
+          alert("please connect to your wallet!");
+  
           return;
       }
 
@@ -381,9 +382,9 @@
 
       try {
           await tonConnectUI.sendTransaction(transaction);
-          alert("Deposit အောင်မြင်ပါသည်။");
+          alert("Deposit Complete");
       } catch (e) {
-          alert("Deposit မအောင်မြင်ပါ။");
+          alert("Deposit Try Again။");
       }
   }
 
