@@ -1,634 +1,304 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Otter Airdrop Wallet</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Otter Wallet - Web3 Edition</title>
+  
+  <!-- FontAwesome Icons & TON Connect SDK -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
-<style>
-:root {
-  --bg: #070b14;
-  --card: rgba(255, 255, 255, 0.05);
-  --accent: #10b981;
-  --text: #fff;
-  --sub: #94a3b8;
-}
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #3b82f6;
+      --text: #f8fafc;
+      --sub-text: #94a3b8;
+    }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', sans-serif;
-}
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+    }
 
-body {
-  background: radial-gradient(circle at top, #172554, #070b14);
-  color: var(--text);
-  padding: 15px;
-  padding-bottom: 90px;
-  min-height: 100vh;
-}
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
 
-/* HEADER */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--card);
-  backdrop-filter: blur(15px);
-  padding: 15px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 15px;
-}
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-.user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+    .header h2 {
+      margin: 0;
+      font-size: 20px;
+      color: var(--accent);
+    }
 
-.avatar {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #10b981, #06b6d4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 18px;
-}
+    /* TON Connect Button Container */
+    #ton-connect {
+      float: right;
+    }
 
-.wallet-address {
-  font-size: 11px;
-  color: var(--sub);
-  background: rgba(0,0,0,0.3);
-  padding: 3px 8px;
-  border-radius: 10px;
-  margin-top: 3px;
-}
+    .balance-card {
+      background: linear-gradient(135deg, #1e293b, #334155);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-.network {
-  background: #0f172a;
-  padding: 8px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  color: #10b981;
-}
+    .balance-card h3 {
+      margin: 0;
+      color: var(--sub-text);
+      font-size: 14px;
+      font-weight: 400;
+    }
 
-/* HERO */
-.hero {
-  background: linear-gradient(135deg, #10b981, #06b6d4);
-  padding: 25px;
-  border-radius: 25px;
-  text-align: center;
-  margin-bottom: 15px;
-  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.25);
-}
+    .balance-amount {
+      font-size: 36px;
+      font-weight: bold;
+      margin: 12px 0;
+    }
 
-.hero h2 {
-  font-size: 32px;
-  font-weight: 800;
-}
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 15px;
+    }
 
-.hero p {
-  opacity: 0.9;
-  margin-top: 5px;
-  font-size: 14px;
-}
+    .btn {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.2s;
+    }
 
-/* AIRDROP CLAIM BOX */
-.airdrop-box {
-  background: var(--card);
-  backdrop-filter: blur(20px);
-  padding: 20px;
-  border-radius: 25px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 15px;
-  text-align: center;
-}
+    .btn:active {
+      opacity: 0.8;
+    }
 
-.claim-btn {
-  width: 100%;
-  margin-top: 12px;
-  padding: 14px;
-  border: none;
-  border-radius: 15px;
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: white;
-  font-weight: 700;
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.3s;
-}
+    .btn.secondary {
+      background-color: #334155;
+    }
 
-.claim-btn:disabled {
-  background: #334155;
-  color: #94a3b8;
-  cursor: not-allowed;
-}
+    .asset-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
 
-/* SECTION TITLES */
-.section-title {
-  margin: 15px 0 10px 0;
-  font-size: 18px;
-}
+    .asset-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
 
-/* ASSET CARDS */
-.asset-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--card);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 15px;
-  border-radius: 20px;
-  margin-bottom: 12px;
-}
+    .asset-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-.asset-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+    .asset-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
 
-.coin {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 18px;
-  font-weight: bold;
-}
+    .asset-name {
+      font-weight: 600;
+      font-size: 16px;
+    }
 
-.otter { background: linear-gradient(135deg, #f59e0b, #ea580c); }
-.usdt { background: #26a17b; }
-.btc { background: #f7931a; }
-.ton { background: #0088cc; }
+    .asset-sub {
+      font-size: 12px;
+      color: var(--sub-text);
+    }
 
-.asset-name { font-weight: 700; }
-.asset-sub { font-size: 12px; color: var(--sub); }
-.balance { text-align: right; }
+    .asset-val {
+      text-align: right;
+    }
 
-.btns {
-  display: flex;
-  gap: 6px;
-  margin-top: 5px;
-}
+    /* Modal Styling */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
 
-.btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 11px;
-  cursor: pointer;
-  font-weight: 600;
-}
+    .modal-content {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 380px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
 
-.deposit { background: #10b981; color: white; }
-.withdraw { background: #ef4444; color: white; }
-.convert { background: #6366f1; color: white; }
-.locked { background: #475569; color: #cbd5e1; cursor: not-allowed; }
-
-/* MARKET CARDS */
-.market-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--card);
-  padding: 12px 15px;
-  border-radius: 15px;
-  margin-bottom: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* BOTTOM NAV */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #0f172a;
-  display: flex;
-  justify-content: space-around;
-  padding: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  z-index: 100;
-}
-
-.nav-item {
-  text-align: center;
-  font-size: 12px;
-  color: #94a3b8;
-  cursor: pointer;
-}
-
-.nav-item i {
-  display: block;
-  font-size: 18px;
-  margin-bottom: 4px;
-}
-
-.nav-item.active {
-  color: #10b981;
-}
-
-/* MODAL POPUP */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(5px);
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: #1e293b;
-  padding: 20px;
-  border-radius: 20px;
-  width: 90%;
-  max-width: 360px;
-  text-align: center;
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.modal-content input, .modal-content select {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 10px;
-  border: none;
-  background: #0f172a;
-  color: white;
-  font-size: 14px;
-}
-
-.address-box {
-  background: #0f172a;
-  padding: 10px;
-  border-radius: 10px;
-  word-break: break-all;
-  font-family: monospace;
-  font-size: 12px;
-  color: #10b981;
-  margin: 10px 0;
-  border: 1px dashed #10b981;
-}
-
-.page { display: none; }
-.page.active { display: block; }
-
-</style>
+    .close-btn {
+      float: right;
+      cursor: pointer;
+      color: var(--sub-text);
+      font-size: 20px;
+    }
+  </style>
 </head>
-
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="user">
-    <div class="avatar">O</div>
-    <div>
-      <div style="font-weight:700">Otter Member</div>
-      <div class="wallet-address" id="userAddress">0x000...000</div>
+<div class="app-container">
+  <!-- Header -->
+  <div class="header">
+    <h2><i class="fa-solid fa-otter"></i> Otter Wallet</h2>
+    <!-- TON Connect Wallet Button -->
+    <div id="ton-connect"></div>
+  </div>
+
+  <!-- Balance Card -->
+  <div class="balance-card">
+    <h3>Total Balance</h3>
+    <div class="balance-amount" id="total-balance">$0.00</div>
+    
+    <div class="action-buttons">
+      <button class="btn" onclick="sendTonTransaction()">
+        <i class="fa-solid fa-arrow-down"></i> Deposit TON
+      </button>
+
+      <button class="btn secondary" onclick="alert('Withdrawals will open after Token Listing!')">
+        <i class="fa-solid fa-arrow-up"></i> Withdraw
+      </button>
     </div>
   </div>
-  <div class="network">● Multi-Chain</div>
-</div>
 
-<!-- PAGE 1: WALLET -->
-<div id="walletPage" class="page active">
-  <div class="hero">
-    <h2 id="totalBalance">$0.00</h2>
-    <p>Total Portfolio Value</p>
-  </div>
-
-  <!-- AIRDROP CLAIM SECTION -->
-  <div class="airdrop-box">
-    <h3>🎁 Daily Airdrop</h3>
-    <p style="color:#94a3b8; font-size:13px; margin-top:5px;">Claim 100 free $OTTER coins every 24 hours!</p>
-    <button id="claimBtn" class="claim-btn" onclick="claimAirdrop()">Claim 100 $OTTER</button>
-  </div>
-
-  <h3 class="section-title">Wallet Assets</h3>
-
-  <!-- OTTER AIRDROP TOKEN (LISTING SOON) -->
-  <div class="asset-card">
-    <div class="asset-left">
-      <div class="coin otter">🦦</div>
-      <div>
-        <div class="asset-name">OTTER</div>
-        <div class="asset-sub">Airdrop Token</div>
+  <!-- Asset List -->
+  <h3>Assets</h3>
+  <div class="asset-list">
+    
+    <div class="asset-card">
+      <div class="asset-left">
+        <div class="asset-icon" style="color: #0088cc;"><i class="fa-solid fa-gem"></i></div>
+        <div>
+          <div class="asset-name">TON</div>
+          <div class="asset-sub" id="ton-status">Not Connected</div>
+        </div>
+      </div>
+      <div class="asset-val">
+        <div class="asset-name" id="ton-bal">0 TON</div>
       </div>
     </div>
-    <div class="balance">
-      <div id="otterBal" style="font-weight: bold;">0 OTTER</div>
-      <div class="btns">
-        <button class="btn locked" onclick="alert('OTTER coin will be unlocked after Exchange Listing!')">🔒 Listing Soon</button>
+
+    <div class="asset-card">
+      <div class="asset-left">
+        <div class="asset-icon" style="color: #f59e0b;"><i class="fa-solid fa-paw"></i></div>
+        <div>
+          <div class="asset-name">OTTER</div>
+          <div class="asset-sub">Airdrop Coin</div>
+        </div>
+      </div>
+      <div class="asset-val">
+        <div class="asset-name">1,00 $OTTER</div>
       </div>
     </div>
-  </div>
 
-  <!-- USDT -->
-  <div class="asset-card">
-    <div class="asset-left">
-      <div class="coin usdt">₮</div>
-      <div>
-        <div class="asset-name">USDT</div>
-        <div class="asset-sub">Tether (TRC20)</div>
-      </div>
-    </div>
-    <div class="balance">
-      <div id="usdtBal" style="font-weight: bold;">0.00 USDT</div>
-      <div class="btns">
-        <button class="btn deposit" onclick="openDepositModal('USDT', 'TRC20', 'T9xR2pK...OtterUsdtAddr')">Deposit</button>
-        <button class="btn withdraw" onclick="openWithdrawModal('USDT')">Withdraw</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TON -->
-  <div class="asset-card">
-    <div class="asset-left">
-      <div class="coin ton"><i class="fa-solid fa-gem"></i></div>
-      <div>
-        <div class="asset-name">TON</div>
-        <div class="asset-sub">TON Network</div>
-      </div>
-    </div>
-    <div class="balance">
-      <div id="tonBal" style="font-weight: bold;">0.00 TON</div>
-      <div class="btns">
-        <button class="btn deposit" onclick="openDepositModal('TON', 'TON Network', 'EQD...OtterTonAddress')">Deposit</button>
-        <button class="btn withdraw" onclick="openWithdrawModal('TON')">Withdraw</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- BTC -->
-  <div class="asset-card">
-    <div class="asset-left">
-      <div class="coin btc"><i class="fa-brands fa-bitcoin"></i></div>
-      <div>
-        <div class="asset-name">BTC</div>
-        <div class="asset-sub">Bitcoin</div>
-      </div>
-    </div>
-    <div class="balance">
-      <div id="btcBal" style="font-weight: bold;">0.0000 BTC</div>
-      <div class="btns">
-        <button class="btn deposit" onclick="openDepositModal('BTC', 'Bitcoin Network', '1A1zP1...OtterBtcAddr')">Deposit</button>
-        <button class="btn withdraw" onclick="openWithdrawModal('BTC')">Withdraw</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- LIVE MARKET PRICES (BINANCE) -->
-  <div style="display:flex; justify-content:space-between; align-items:center; margin: 15px 0 10px 0;">
-    <h3 class="section-title" style="margin:0;">Live Binance Prices</h3>
-    <button class="btn convert" onclick="openConvertModal()">🔄 Convert Crypto</button>
-  </div>
-  <div id="marketList">
-    <div class="market-card"><span>Loading Binance Prices...</span></div>
-  </div>
-</div>
-
-<!-- PAGE 2: TASKS (COMING SOON) -->
-<div id="tasksPage" class="page">
-  <div class="airdrop-box" style="margin-top: 50px;">
-    <i class="fa-solid fa-list-check" style="font-size: 40px; color: #10b981; margin-bottom: 15px;"></i>
-    <h2>Airdrop Quests & Tasks</h2>
-    <p style="color:#94a3b8; margin-top: 10px;">⏳ Status: <b style="color:#f59e0b">COMING SOON</b></p>
-  </div>
-</div>
-
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
-  <div class="nav-item active" onclick="switchPage('walletPage', this)">
-    <i class="fa-solid fa-wallet"></i> Wallet
-  </div>
-  <div class="nav-item" onclick="switchPage('tasksPage', this)">
-    <i class="fa-solid fa-list-check"></i> Tasks
-  </div>
-</div>
-
-<!-- MODAL CONTAINER -->
-<div id="actionModal" class="modal">
-  <div class="modal-content" id="modalBody">
-    <!-- Dynamic JS Content -->
   </div>
 </div>
 
 <script>
-let balances = { OTTER: 0, USDT: 0.00, TON: 0.00, BTC: 0.0000 };
-let livePrices = { BTC: 0, TON: 0 };
-let lastClaimTime = 0;
+  // ၁။ TON Connect SDK ကို အသက်သွင်းခြင်း
+  const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+      // Demo Manifest URL (သင့် GitHub Pages Domain နဲ့ နောက်မှ အစားထိုးနိုင်ပါတယ်)
+      manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-client/test-manifest.json',
+      buttonRootId: 'ton-connect'
+  });
 
-window.onload = function() {
-  generateWalletAddress();
-  fetchBinancePrices();
-  setInterval(fetchBinancePrices, 10000);
-  checkClaimStatus();
-};
+  let userWalletAddress = null;
 
-function generateWalletAddress() {
-  const randomHex = Array.from({length: 6}, () => Math.floor(Math.random()*16).toString(16)).join('');
-  document.getElementById('userAddress').innerText = `0x${randomHex}...otter`;
-}
+  // ၂။ Wallet Connect ဖြစ်ချိန် သို့မဟုတ် Disconnect ဖြစ်ချိန် အလိုအလျောက် စစ်ဆေးခြင်း
+  tonConnectUI.onStatusChange(wallet => {
+      if (wallet) {
+          userWalletAddress = wallet.account.address;
+          document.getElementById('ton-status').innerText = "Connected";
+          document.getElementById('ton-status').style.color = "#4ade80";
+          
+          // Address အတိုလေး ပြပေးရန်
+          const shortAddr = userWalletAddress.substring(0, 4) + "..." + userWalletAddress.substring(userWalletAddress.length - 4);
+          alert("Wallet ချိတ်ဆက်မှု အောင်မြင်ပါသည်: " + shortAddr);
+      } else {
+          userWalletAddress = null;
+          document.getElementById('ton-status').innerText = "Not Connected";
+          document.getElementById('ton-status').style.color = "#94a3b8";
+      }
+  });
 
-async function fetchBinancePrices() {
-  try {
-    const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=["BTCUSDT","TONUSDT","SOLUSDT"]');
-    const data = await res.json();
-    
-    let html = '';
-    data.forEach(coin => {
-      const symbol = coin.symbol.replace('USDT', '');
-      const price = parseFloat(coin.price).toFixed(2);
-      livePrices[symbol] = parseFloat(price);
-      html += `
-        <div class="market-card">
-          <span style="font-weight:bold;">${symbol}/USDT</span>
-          <span style="color:#10b981; font-weight:bold;">$${price}</span>
-        </div>
-      `;
-    });
-    document.getElementById('marketList').innerHTML = html;
-    updateUI();
-  } catch (err) {
-    document.getElementById('marketList').innerHTML = '<div class="market-card">Prices unavailable</div>';
+  // ၃။ TON Deposit လုပ်ရန် Wallet သို့ Transaction Request ပို့ခြင်း
+  async function sendTonTransaction() {
+      if (!userWalletAddress) {
+          alert("ကျေးဇူးပြု၍ ညာဘက်အပေါ်ဒေါောင့်ရှိ 'Connect Wallet' ကို အရင်နှိပ်ပေးပါဗျာ!");
+          return;
+      }
+
+      // ငွေတောင်းခံမည့် Transaction Details
+      const transaction = {
+          validUntil: Math.floor(Date.now() / 1000) + 600, // 10 မိနစ်အတွင်း
+          messages: [
+              {
+                  // သင့်ရဲ့ TON Wallet Address အစစ်ထည့်ရန်
+                  address: "EQD________________________________________", 
+                  amount: "1000000000" // 1 TON = 1,000,000,000 nanoTON
+              }
+          ]
+      };
+
+      try {
+          // User ရဲ့ Wallet App (Tonkeeper/Telegram Wallet) ပွင့်လာပြီး Confirm တောင်းမည်
+          const result = await tonConnectUI.sendTransaction(transaction);
+          alert("Deposit အောင်မြင်ပါသည်။ Transaction Hash: " + result.boc);
+      } catch (e) {
+          console.error(e);
+          alert("Transaction ကို ပယ်ဖျက်လိုက်ပါသည် သို့မဟုတ် မအောင်မြင်ပါ။");
+      }
   }
-}
-
-/* DEPOSIT MODAL (NO DUMMY BALANCES) */
-function openDepositModal(coin, network, address) {
-  const modal = document.getElementById('actionModal');
-  const body = document.getElementById('modalBody');
-  
-  body.innerHTML = `
-    <h3>Deposit ${coin}</h3>
-    <p style="font-size:12px; color:#94a3b8; margin-top:5px;">Send only ${coin} via <b>${network}</b> network to this address:</p>
-    <div class="address-box" id="depAddr">${address}</div>
-    <button class="btn deposit" style="width:100%; padding:10px;" onclick="navigator.clipboard.writeText('${address}'); alert('Address Copied!');">📋 Copy Deposit Address</button>
-    <p style="font-size:11px; color:#ef4444; margin-top:10px;">⚠️ Deposit from Binance/Wallets to this address. Balance updates upon blockchain confirmation.</p>
-    <button class="btn withdraw" style="width:100%; padding:10px; margin-top:10px;" onclick="closeModal()">Close</button>
-  `;
-  modal.style.display = 'flex';
-}
-
-/* WITHDRAW MODAL */
-function openWithdrawModal(coin) {
-  const modal = document.getElementById('actionModal');
-  const body = document.getElementById('modalBody');
-  
-  body.innerHTML = `
-    <h3>Withdraw ${coin}</h3>
-    <p style="font-size:12px; color:#94a3b8; margin-top:5px;">Available: ${balances[coin]} ${coin}</p>
-    <input type="text" id="withdrawAddr" placeholder="Enter Destination ${coin} Address">
-    <input type="number" id="withdrawAmt" placeholder="Enter Amount">
-    <div style="display:flex; gap:10px; margin-top:10px;">
-      <button class="btn deposit" style="flex:1; padding:10px;" onclick="processWithdraw('${coin}')">Submit Request</button>
-      <button class="btn withdraw" style="flex:1; padding:10px;" onclick="closeModal()">Cancel</button>
-    </div>
-  `;
-  modal.style.display = 'flex';
-}
-
-function processWithdraw(coin) {
-  const addr = document.getElementById('withdrawAddr').value;
-  const amt = parseFloat(document.getElementById('withdrawAmt').value);
-
-  if (!addr || !amt || amt <= 0) {
-    alert('Please enter a valid address and amount!');
-    return;
-  }
-  if (balances[coin] < amt) {
-    alert('Insufficient balance!');
-    return;
-  }
-
-  balances[coin] -= amt;
-  updateUI();
-  closeModal();
-  alert(`Withdrawal request of ${amt} ${coin} to ${addr} sent for processing!`);
-}
-
-/* REAL CRYPTO CONVERT (USDT / BTC / TON) */
-function openConvertModal() {
-  const modal = document.getElementById('actionModal');
-  const body = document.getElementById('modalBody');
-
-  body.innerHTML = `
-    <h3>🔄 Convert Cryptos</h3>
-    <p style="font-size:12px; color:#94a3b8;">Swap Cryptos at Live Binance Prices</p>
-    
-    <select id="fromCoin">
-      <option value="USDT">From: USDT (Bal: ${balances.USDT})</option>
-      <option value="TON">From: TON (Bal: ${balances.TON})</option>
-      <option value="BTC">From: BTC (Bal: ${balances.BTC})</option>
-    </select>
-    
-    <select id="toCoin">
-      <option value="TON">To: TON</option>
-      <option value="USDT">To: USDT</option>
-      <option value="BTC">To: BTC</option>
-    </select>
-
-    <input type="number" id="convertAmt" placeholder="Amount to Convert">
-
-    <div style="display:flex; gap:10px; margin-top:10px;">
-      <button class="btn convert" style="flex:1; padding:10px;" onclick="processConvert()">Convert Now</button>
-      <button class="btn withdraw" style="flex:1; padding:10px;" onclick="closeModal()">Cancel</button>
-    </div>
-  `;
-  modal.style.display = 'flex';
-}
-
-function processConvert() {
-  const from = document.getElementById('fromCoin').value;
-  const to = document.getElementById('toCoin').value;
-  const amt = parseFloat(document.getElementById('convertAmt').value);
-
-  if (from === to) {
-    alert('Cannot convert same coin!');
-    return;
-  }
-  if (!amt || amt <= 0 || balances[from] < amt) {
-    alert('Invalid or insufficient balance!');
-    return;
-  }
-
-  // Convert Logic based on Binance Live Rates
-  let fromInUsdt = from === 'USDT' ? amt : amt * (livePrices[from] || 1);
-  let convertedAmount = to === 'USDT' ? fromInUsdt : fromInUsdt / (livePrices[to] || 1);
-
-  balances[from] -= amt;
-  balances[to] += convertedAmount;
-
-  updateUI();
-  closeModal();
-  alert(`Successfully converted ${amt} ${from} to ${convertedAmount.toFixed(4)} ${to}!`);
-}
-
-function closeModal() {
-  document.getElementById('actionModal').style.display = 'none';
-}
-
-/* AIRDROP CLAIM */
-function claimAirdrop() {
-  const now = Date.now();
-  const cooldown = 24 * 60 * 60 * 1000;
-
-  if (now - lastClaimTime >= cooldown) {
-    balances.OTTER += 100;
-    lastClaimTime = Date.now();
-    updateUI();
-    checkClaimStatus();
-    alert('🎉 You claimed 100 $OTTER Coins!');
-  }
-}
-
-function checkClaimStatus() {
-  const btn = document.getElementById('claimBtn');
-  const cooldown = 24 * 60 * 60 * 1000;
-  const remaining = cooldown - (Date.now() - lastClaimTime);
-
-  if (remaining > 0 && lastClaimTime !== 0) {
-    btn.disabled = true;
-    const hours = Math.floor(remaining / (1000 * 60 * 60));
-    const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-    btn.innerText = `Claimed (Wait ${hours}h ${mins}m)`;
-  } else {
-    btn.disabled = false;
-    btn.innerText = 'Claim 100 $OTTER';
-  }
-}
-
-function updateUI() {
-  document.getElementById('otterBal').innerText = `${balances.OTTER} OTTER`;
-  document.getElementById('usdtBal').innerText = `${balances.USDT.toFixed(2)} USDT`;
-  document.getElementById('tonBal').innerText = `${balances.TON.toFixed(2)} TON`;
-  document.getElementById('btcBal').innerText = `${balances.BTC.toFixed(4)} BTC`;
-
-  let total = balances.USDT + (balances.TON * (livePrices.TON || 0)) + (balances.BTC * (livePrices.BTC || 0));
-  document.getElementById('totalBalance').innerText = `$${total.toFixed(2)}`;
-}
-
-function switchPage(pageId, element) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById(pageId).classList.add('active');
-  element.classList.add('active');
-}
 </script>
 
 </body>
-  </html>
+</html>
