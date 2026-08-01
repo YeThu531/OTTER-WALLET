@@ -3,439 +3,567 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Otter Wallet</title>
-
+<title>Otter Airdrop Wallet</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-
-:root{
---bg:#070b14;
---card:#101827;
---accent:#10b981;
---accent2:#6366f1;
---text:#fff;
---sub:#94a3b8;
+:root {
+  --bg: #070b14;
+  --card: rgba(255, 255, 255, 0.05);
+  --accent: #10b981;
+  --accent2: #6366f1;
+  --text: #fff;
+  --sub: #94a3b8;
 }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Segoe UI,sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-body{
-background:
-radial-gradient(circle at top,#172554,#070b14);
-color:white;
-padding:15px;
-padding-bottom:90px;
+body {
+  background: radial-gradient(circle at top, #172554, #070b14);
+  color: var(--text);
+  padding: 15px;
+  padding-bottom: 90px;
+  min-height: 100vh;
 }
 
 /* HEADER */
-
-.header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-background:rgba(255,255,255,.05);
-backdrop-filter:blur(15px);
-padding:15px;
-border-radius:20px;
-border:1px solid rgba(255,255,255,.08);
-margin-bottom:15px;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card);
+  backdrop-filter: blur(15px);
+  padding: 15px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 15px;
 }
 
-.user{
-display:flex;
-align-items:center;
-gap:10px;
+.user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.avatar{
-width:45px;
-height:45px;
-border-radius:50%;
-background:linear-gradient(135deg,#10b981,#06b6d4);
-display:flex;
-align-items:center;
-justify-content:center;
-font-weight:bold;
-font-size:18px;
+.avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981, #06b6d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
 }
 
-.network{
-background:#0f172a;
-padding:8px 12px;
-border-radius:20px;
-font-size:12px;
-color:#10b981;
+.wallet-address {
+  font-size: 11px;
+  color: var(--sub);
+  background: rgba(0,0,0,0.3);
+  padding: 3px 8px;
+  border-radius: 10px;
+  margin-top: 3px;
+}
+
+.network {
+  background: #0f172a;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #10b981;
 }
 
 /* HERO */
-
-.hero{
-background:
-linear-gradient(135deg,#10b981,#06b6d4);
-padding:25px;
-border-radius:25px;
-text-align:center;
-margin-bottom:15px;
-box-shadow:0 10px 30px rgba(16,185,129,.25);
+.hero {
+  background: linear-gradient(135deg, #10b981, #06b6d4);
+  padding: 25px;
+  border-radius: 25px;
+  text-align: center;
+  margin-bottom: 15px;
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.25);
 }
 
-.hero h2{
-font-size:34px;
-font-weight:800;
+.hero h2 {
+  font-size: 32px;
+  font-weight: 800;
 }
 
-.hero p{
-opacity:.9;
-margin-top:5px;
+.hero p {
+  opacity: 0.9;
+  margin-top: 5px;
+  font-size: 14px;
 }
 
-/* PRESALE */
-
-.presale{
-background:rgba(255,255,255,.05);
-backdrop-filter:blur(20px);
-padding:20px;
-border-radius:25px;
-border:1px solid rgba(255,255,255,.08);
-margin-bottom:15px;
+/* AIRDROP CLAIM BOX */
+.airdrop-box {
+  background: var(--card);
+  backdrop-filter: blur(20px);
+  padding: 20px;
+  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 15px;
+  text-align: center;
 }
 
-.presale h3{
-margin-bottom:10px;
+.claim-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px;
+  border: none;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-.input-group{
-display:flex;
-gap:10px;
-margin-top:15px;
+.claim-btn:disabled {
+  background: #334155;
+  color: #94a3b8;
+  cursor: not-allowed;
 }
 
-select,input{
-flex:1;
-background:#0f172a;
-border:none;
-padding:12px;
-border-radius:12px;
-color:white;
+/* SECTION TITLES */
+.section-title {
+  margin: 15px 0 10px 0;
+  font-size: 18px;
 }
 
-.buy-btn{
-width:100%;
-margin-top:12px;
-padding:14px;
-border:none;
-border-radius:15px;
-background:linear-gradient(135deg,#6366f1,#8b5cf6);
-color:white;
-font-weight:700;
-cursor:pointer;
+/* ASSET CARDS */
+.asset-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 15px;
+  border-radius: 20px;
+  margin-bottom: 12px;
 }
 
-/* ASSET CARD */
-
-.assets-title{
-margin-bottom:12px;
+.asset-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.asset-card{
-display:flex;
-justify-content:space-between;
-align-items:center;
-background:rgba(255,255,255,.05);
-backdrop-filter:blur(20px);
-border:1px solid rgba(255,255,255,.08);
-padding:15px;
-border-radius:20px;
-margin-bottom:12px;
+.coin {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
 }
 
-.asset-left{
-display:flex;
-align-items:center;
-gap:12px;
+.otter { background: linear-gradient(135deg, #f59e0b, #ea580c); }
+.usdt { background: #26a17b; }
+.btc { background: #f7931a; }
+.eth { background: #627eea; }
+.ton { background: #0088cc; }
+
+.asset-name { font-weight: 700; }
+.asset-sub { font-size: 12px; color: var(--sub); }
+.balance { text-align: right; }
+
+.btns {
+  display: flex;
+  gap: 6px;
+  margin-top: 5px;
 }
 
-.coin{
-width:50px;
-height:50px;
-border-radius:50%;
-display:flex;
-justify-content:center;
-align-items:center;
-font-size:20px;
-font-weight:bold;
+.btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 600;
 }
 
-.otter{
-background:linear-gradient(135deg,#f59e0b,#ea580c);
-}
+.deposit { background: #10b981; color: white; }
+.withdraw { background: #ef4444; color: white; }
+.convert { background: #6366f1; color: white; }
 
-.usdt{
-background:#26a17b;
-}
-
-.btc{
-background:#f7931a;
-}
-
-.eth{
-background:#627eea;
-}
-
-.asset-name{
-font-weight:700;
-}
-
-.asset-sub{
-font-size:12px;
-color:var(--sub);
-}
-
-.balance{
-text-align:right;
-}
-
-.btns{
-display:flex;
-gap:6px;
-margin-top:5px;
-}
-
-.btn{
-padding:6px 10px;
-border:none;
-border-radius:8px;
-font-size:11px;
-cursor:pointer;
-font-weight:600;
-}
-
-.deposit{
-background:#10b981;
-color:white;
-}
-
-.withdraw{
-background:#ef4444;
-color:white;
+/* MARKET CARDS */
+.market-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card);
+  padding: 12px 15px;
+  border-radius: 15px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* BOTTOM NAV */
-
-.bottom-nav{
-position:fixed;
-bottom:0;
-left:0;
-width:100%;
-background:#0f172a;
-display:flex;
-justify-content:space-around;
-padding:12px;
-border-top:1px solid rgba(255,255,255,.08);
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #0f172a;
+  display: flex;
+  justify-content: space-around;
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 100;
 }
 
-.nav-item{
-text-align:center;
-font-size:12px;
-color:#94a3b8;
+.nav-item {
+  text-align: center;
+  font-size: 12px;
+  color: #94a3b8;
+  cursor: pointer;
 }
 
-.nav-item i{
-display:block;
-font-size:20px;
-margin-bottom:4px;
+.nav-item i {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 4px;
 }
 
-.active{
-color:#10b981;
+.nav-item.active {
+  color: #10b981;
 }
+
+/* MODAL POPUP */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(5px);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 350px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 10px;
+  margin: 15px 0;
+  border-radius: 10px;
+  border: none;
+  background: #0f172a;
+  color: white;
+}
+
+.page { display: none; }
+.page.active { display: block; }
 
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
-<div class="user">
-<div class="avatar">O</div>
-<div>
-<div style="font-weight:700">Otter User</div>
-<div style="font-size:12px;color:#94a3b8">Welcome Back</div>
-</div>
-</div>
-
-<div class="network">
-● Otter Chain
-</div>
+  <div class="user">
+    <div class="avatar">O</div>
+    <div>
+      <div style="font-weight:700">Otter Member</div>
+      <div class="wallet-address" id="userAddress">0x000...000</div>
+    </div>
+  </div>
+  <div class="network">● Otter Chain</div>
 </div>
 
-<div class="hero">
-<h2>$12,540</h2>
-<p>Total Portfolio Value</p>
+<!-- PAGE 1: WALLET (HOME) -->
+<div id="walletPage" class="page active">
+  <div class="hero">
+    <h2 id="totalBalance">$0.00</h2>
+    <p>Total Estimated Balance</p>
+  </div>
+
+  <!-- AIRDROP CLAIM SECTION -->
+  <div class="airdrop-box">
+    <h3>🎁 Daily Airdrop</h3>
+    <p style="color:#94a3b8; font-size:13px; margin-top:5px;">Claim 100 free $OTTER coins every 24 hours!</p>
+    <button id="claimBtn" class="claim-btn" onclick="claimAirdrop()">Claim 100 $OTTER</button>
+  </div>
+
+  <h3 class="section-title">Wallet Assets</h3>
+
+  <!-- OTTER TOKEN -->
+  <div class="asset-card">
+    <div class="asset-left">
+      <div class="coin otter">🦦</div>
+      <div>
+        <div class="asset-name">OTTER</div>
+        <div class="asset-sub">Airdrop Token</div>
+      </div>
+    </div>
+    <div class="balance">
+      <div id="otterBal" style="font-weight: bold;">0 OTTER</div>
+      <div class="btns">
+        <button class="btn convert" onclick="openModal('convert')">Convert</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- USDT -->
+  <div class="asset-card">
+    <div class="asset-left">
+      <div class="coin usdt">₮</div>
+      <div>
+        <div class="asset-name">USDT</div>
+        <div class="asset-sub">Tether USD</div>
+      </div>
+    </div>
+    <div class="balance">
+      <div id="usdtBal" style="font-weight: bold;">0.00 USDT</div>
+      <div class="btns">
+        <button class="btn deposit" onclick="openModal('deposit', 'USDT')">Deposit</button>
+        <button class="btn withdraw" onclick="openModal('withdraw', 'USDT')">Withdraw</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TON -->
+  <div class="asset-card">
+    <div class="asset-left">
+      <div class="coin ton"><i class="fa-solid fa-gem"></i></div>
+      <div>
+        <div class="asset-name">TON</div>
+        <div class="asset-sub">Toncoin</div>
+      </div>
+    </div>
+    <div class="balance">
+      <div id="tonBal" style="font-weight: bold;">0.00 TON</div>
+      <div class="btns">
+        <button class="btn deposit" onclick="openModal('deposit', 'TON')">Deposit</button>
+        <button class="btn withdraw" onclick="openModal('withdraw', 'TON')">Withdraw</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE MARKET PRICES (BINANCE) -->
+  <h3 class="section-title">Live Binance Market</h3>
+  <div id="marketList">
+    <div class="market-card"><span>Loading Binance Prices...</span></div>
+  </div>
 </div>
 
-<div class="presale">
-<h3>🚀 OTTER Presale</h3>
-
-<p style="color:#94a3b8;font-size:13px;">
-Buy OTTER before exchange listing
-<br>
-1 USDT = 100 OTTER
-</p>
-
-<div class="input-group">
-<select>
-<option>USDT</option>
-<option>BTC</option>
-<option>ETH</option>
-</select>
-
-<input placeholder="Amount">
+<!-- PAGE 2: TASKS (COMING SOON) -->
+<div id="tasksPage" class="page">
+  <div class="airdrop-box" style="margin-top: 50px;">
+    <i class="fa-solid fa-list-check" style="font-size: 40px; color: #10b981; margin-bottom: 15px;"></i>
+    <h2>Airdrop Quests & Tasks</h2>
+    <p style="color:#94a3b8; margin-top: 10px;">⏳ Status: <b style="color:#f59e0b">COMING SOON</b></p>
+    <p style="font-size: 12px; color: #64748b; margin-top: 15px;">Complete social tasks to earn extra $OTTER tokens in the next update.</p>
+  </div>
 </div>
 
-<button class="buy-btn">
-Buy OTTER Now
-</button>
-</div>
-
-<h3 class="assets-title">Wallet Assets</h3>
-
-<div class="asset-card">
-
-<div class="asset-left">
-<div class="coin otter">🦦</div>
-
-<div>
-<div class="asset-name">OTTER</div>
-<div class="asset-sub">Presale Token</div>
-</div>
-</div>
-
-<div class="balance">
-<div>15,000 OTTER</div>
-
-<div class="btns">
-<button class="btn withdraw">Locked</button>
-</div>
-
-</div>
-
-</div>
-
-<div class="asset-card">
-
-<div class="asset-left">
-<div class="coin usdt">₮</div>
-
-<div>
-<div class="asset-name">USDT</div>
-<div class="asset-sub">Balance 100.00</div>
-</div>
-</div>
-
-<div class="btns">
-<button class="btn deposit">Deposit</button>
-<button class="btn withdraw">Withdraw</button>
-</div>
-
-</div>
-
-<div class="asset-card">
-
-<div class="asset-left">
-<div class="coin btc">
-<i class="fa-brands fa-bitcoin"></i>
-</div>
-
-<div>
-<div class="asset-name">Bitcoin</div>
-<div class="asset-sub">0.005 BTC</div>
-</div>
-</div>
-
-<div class="btns">
-<button class="btn deposit">Deposit</button>
-<button class="btn withdraw">Withdraw</button>
-</div>
-
-</div>
-
-<div class="asset-card">
-
-<div class="asset-left">
-<div class="coin eth">
-<i class="fa-brands fa-ethereum"></i>
-</div>
-
-<div>
-<div class="asset-name">Ethereum</div>
-<div class="asset-sub">0.05 ETH</div>
-</div>
-</div>
-
-<div class="btns">
-<button class="btn deposit">Deposit</button>
-<button class="btn withdraw">Withdraw</button>
-</div>
-
-</div>
-
+<!-- BOTTOM NAV -->
 <div class="bottom-nav">
-
-<div class="nav-item active">
-<i class="fa-solid fa-wallet"></i>
-Wallet
+  <div class="nav-item active" onclick="switchPage('walletPage', this)">
+    <i class="fa-solid fa-wallet"></i> Wallet
+  </div>
+  <div class="nav-item" onclick="switchPage('tasksPage', this)">
+    <i class="fa-solid fa-list-check"></i> Tasks
+  </div>
 </div>
 
-<div class="nav-item">
-<i class="fa-solid fa-coins"></i>
-Earn
+<!-- GENERAL MODAL -->
+<div id="actionModal" class="modal">
+  <div class="modal-content">
+    <h3 id="modalTitle">Action</h3>
+    <p id="modalDesc" style="font-size:12px; color:#94a3b8; margin-top:5px;"></p>
+    <input type="number" id="modalInput" placeholder="Enter amount">
+    <div style="display:flex; gap:10px;">
+      <button class="btn deposit" style="flex:1; padding:10px;" onclick="processAction()">Confirm</button>
+      <button class="btn withdraw" style="flex:1; padding:10px;" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
 </div>
 
-<div class="nav-item">
-<i class="fa-solid fa-users"></i>
-Team
-</div>
+<script>
+// --- STATE MANAGEMENT ---
+let balances = {
+  OTTER: 0,
+  USDT: 0.00,
+  TON: 0.00
+};
 
-<div class="nav-item">
-<i class="fa-solid fa-gear"></i>
-More
-</div>
+let lastClaimTime = 0;
+let currentModalType = '';
+let currentCoin = '';
 
-</div>
+// --- INITIALIZE BOT ---
+window.onload = function() {
+  generateWalletAddress();
+  fetchBinancePrices();
+  setInterval(fetchBinancePrices, 10000); // 10s တိုင်း Binance Price update ရယူရန်
+  checkClaimStatus();
+};
+
+// --- WALLET GENERATOR ---
+function generateWalletAddress() {
+  const randomHex = Array.from({length: 8}, () => Math.floor(Math.random()*16).toString(16)).join('');
+  const addr = `0x${randomHex}...otter`;
+  document.getElementById('userAddress').innerText = addr;
+}
+
+// --- BINANCE LIVE PRICES ---
+async function fetchBinancePrices() {
+  try {
+    const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=["BTCUSDT","ETHUSDT","TONUSDT","SOLUSDT"]');
+    const data = await res.json();
+    
+    let html = '';
+    data.forEach(coin => {
+      const symbol = coin.symbol.replace('USDT', '');
+      const price = parseFloat(coin.price).toFixed(2);
+      html += `
+        <div class="market-card">
+          <span style="font-weight:bold;">${symbol}/USDT</span>
+          <span style="color:#10b981; font-weight:bold;">$${price}</span>
+        </div>
+      `;
+    });
+    document.getElementById('marketList').innerHTML = html;
+  } catch (err) {
+    document.getElementById('marketList').innerHTML = '<div class="market-card">Prices unavailable</div>';
+  }
+}
+
+// --- AIRDROP CLAIM SYSTEM (24H TIMER) ---
+function claimAirdrop() {
+  const now = Date.now();
+  const cooldown = 24 * 60 * 60 * 1000; // 24 Hours
+
+  if (now - lastClaimTime >= cooldown) {
+    balances.OTTER += 100;
+    lastClaimTime = Date.now();
+    updateUI();
+    checkClaimStatus();
+    alert('🎉 Congratulations! You received 100 $OTTER Coins!');
+  }
+}
+
+function checkClaimStatus() {
+  const btn = document.getElementById('claimBtn');
+  const cooldown = 24 * 60 * 60 * 1000;
+  const remaining = cooldown - (Date.now() - lastClaimTime);
+
+  if (remaining > 0 && lastClaimTime !== 0) {
+    btn.disabled = true;
+    const hours = Math.floor(remaining / (1000 * 60 * 60));
+    const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+    btn.innerText = `Claimed (Wait ${hours}h ${mins}m)`;
+    setTimeout(checkClaimStatus, 60000); // 1 မိနစ်တိုင်း Timer စစ်ရန်
+  } else {
+    btn.disabled = false;
+    btn.innerText = 'Claim 100 $OTTER';
+  }
+}
+
+// --- UPDATE UI ---
+function updateUI() {
+  document.getElementById('otterBal').innerText = `${balances.OTTER} OTTER`;
+  document.getElementById('usdtBal').innerText = `${balances.USDT.toFixed(2)} USDT`;
+  document.getElementById('tonBal').innerText = `${balances.TON.toFixed(2)} TON`;
+  
+  // Total Portfolio Estimated
+  const total = (balances.OTTER * 0.01) + balances.USDT + (balances.TON * 6.5);
+  document.getElementById('totalBalance').innerText = `$${total.toFixed(2)}`;
+}
+
+// --- MODAL & ACTIONS ---
+function openModal(type, coin = '') {
+  currentModalType = type;
+  currentCoin = coin;
+  const modal = document.getElementById('actionModal');
+  const title = document.getElementById('modalTitle');
+  const desc = document.getElementById('modalDesc');
+  const input = document.getElementById('modalInput');
+
+  input.value = '';
+  modal.style.display = 'flex';
+
+  if (type === 'deposit') {
+    title.innerText = `Deposit ${coin}`;
+    desc.innerText = `Send ${coin} to your wallet address listed in the header.`;
+  } else if (type === 'withdraw') {
+    title.innerText = `Withdraw ${coin}`;
+    desc.innerText = `Minimum withdraw amount applies.`;
+  } else if (type === 'convert') {
+    title.innerText = `Convert $OTTER to USDT`;
+    desc.innerText = `Rate: 100 OTTER = 1 USDT`;
+  }
+}
+
+function closeModal() {
+  document.getElementById('actionModal').style.display = 'none';
+}
+
+function processAction() {
+  const val = parseFloat(document.getElementById('modalInput').value);
+  if (!val || val <= 0) {
+    alert('Please enter a valid amount!');
+    return;
+  }
+
+  if (currentModalType === 'deposit') {
+    balances[currentCoin] += val;
+    alert(`Successfully deposited ${val} ${currentCoin}`);
+  } else if (currentModalType === 'withdraw') {
+    if (balances[currentCoin] >= val) {
+      balances[currentCoin] -= val;
+      alert(`Withdrawal request for ${val} ${currentCoin} submitted.`);
+    } else {
+      alert('Insufficient balance!');
+    }
+  } else if (currentModalType === 'convert') {
+    if (balances.OTTER >= val) {
+      balances.OTTER -= val;
+      balances.USDT += (val / 100);
+      alert(`Converted ${val} OTTER to ${(val / 100).toFixed(2)} USDT`);
+    } else {
+      alert('Insufficient $OTTER balance!');
+    }
+  }
+  
+  updateUI();
+  closeModal();
+}
+
+// --- PAGE NAVIGATION ---
+function switchPage(pageId, element) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  
+  document.getElementById(pageId).classList.add('active');
+  element.classList.add('active');
+}
+</script>
 
 </body>
-    </html>
-        
-            
-        
-
-        
-            
-
-        
-            
-        
-
-        
-
-        
-
-        
-
-        
-        
-
-        
-        
-
-        
+    </html>        
 
         
 
