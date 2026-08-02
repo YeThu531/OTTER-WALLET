@@ -427,12 +427,7 @@
     }
   }
   // Firebase ထဲမှ Tasks များ ဆွဲယူရန်
-  function loadTasksFromFirebase() {
-  db.collection("tasks").get().then((querySnapshot) => {
-    // taskContainer ID ကို မိမိ HTML ထဲက ID အတိုင်း ထည့်ပါ
-    const taskContainer = document.getElementById("task-container") || document.getElementById("tasks-list");
-    if (!taskContainer) return;
-
+  
     function loadTasksFromFirebase() {
     const taskContainer = document.getElementById("tasks-list");
     if (!taskContainer) return;
