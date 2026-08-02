@@ -433,24 +433,65 @@
     const taskContainer = document.getElementById("task-container") || document.getElementById("tasks-list");
     if (!taskContainer) return;
 
-    taskContainer.innerHTML = "";
+    function loadTasksFromFirebase() {
+    const taskContainer = document.getElementById("tasks-list");
+    if (!taskContainer) return;
 
-    querySnapshot.forEach((doc) => {
-      const task = doc.data();
-      const taskElement = document.createElement("div");
-      taskElement.className = "task-card";
-      taskElement.innerHTML = `
-        <div class="task-info">
-          <h4>${task.title}</h4>
-          <p>+${task.reward} OTTER</p>
-        </div>
-        <a href="${task.link}" target="_blank" class="task-btn">Go</a>
-      `;
-      taskContainer.appendChild(taskElement);
+    db.collection("tasks").get().then((querySnapshot) => {
+        taskContainer.innerHTML = "";
+
+        querySnapshot.forEach((doc) => {
+            const task = doc.data();
+            
+            const taskElement = document.createElement("div");
+            taskElement.className = "task-card";
+            
+            // Task Card အတွက် Styling
+            taskElement.style.cssText = `
+                background: #1e293b;
+                padding: 14px;
+                margin-bottom: 12px;
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            `;
+
+            // Telegram Logo၊ Task Title၊ Reward အမှတ်နဲ့ Go Button ပါဝင်သည့် HTML
+            taskElement.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <!-- Telegram Icon -->
+                    <div style="background: #0088cc; width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21.5 3C21.5 3 22 3.1 22 3.5C22 3.7 21.9 4.1 21.8 4.3L19.4 18.5C19.1 19.8 18.2 20.3 17.3 19.8L13.1 16.7L11.1 18.7C10.9 18.9 10.7 19.1 10.3 19.1L10.6 14.8L18.4 7.6C18.7 7.3 18.4 7.2 18 7.4L8.3 13.5L4.1 12.2C3.2 11.9 3.2 11.3 4.3 10.9L20.6 4.6C21.3 4.3 21.5 3 21.5 3Z" fill="white"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Task စာသားများ -->
+                    <div>
+                        <h4 style="margin: 0; color: #ffffff; font-size: 14px; font-weight: 600;">${task.title}</h4>
+                        <p style="margin: 2px 0 0; color: #38bdf8; font-size: 13px; font-weight: 700;">+${task.reward} $OTTER</p>
+                    </div>
+                </div>
+
+                <!-- Go Button -->
+                <a href="${task.link}" target="_blank" style="
+                    background: #2563eb;
+                    color: #ffffff;
+                    padding: 8px 18px;
+                    border-radius: 10px;
+                    text-decoration: none;
+                    font-weight: bold;
+                    font-size: 13px;
+                ">Go</a>
+            `;
+
+            taskContainer.appendChild(taskElement);
+        });
+    }).catch((error) => {
+        console.error("Error getting tasks: ", error);
     });
-  }).catch((error) => {
-    console.error("Error getting tasks: ", error);
-  });
+    }
 }
 
 loadTasksFromFirebase();
