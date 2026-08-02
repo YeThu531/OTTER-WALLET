@@ -428,6 +428,31 @@
       }, { merge: true });
     }
   }
+  // Firebase ထဲမှ Tasks များ ဆွဲယူရန်
+  function loadTasksFromFirebase() {
+    db.collection("tasks").get().then((querySnapshot) => {
+      const taskContainer = document.getElementById("task-list");
+      if (!taskContainer) return;
+      
+      taskContainer.innerHTML = "";
+      
+      querySnapshot.forEach((doc) => {
+        const task = doc.data();
+        const taskElement = document.createElement("div");
+        taskElement.className = "task-card";
+        taskElement.innerHTML = `
+          <div class="task-info">
+            <h4>${task.title}</h4>
+            <p>+${task.reward} OTTER</p>
+          </div>
+          <a href="${task.link}" target="_blank" class="claim-btn">Go & Claim</a>
+        `;
+        taskContainer.appendChild(taskElement);
+      });
+    });
+  }
+
+  loadTasksFromFirebase();
 </script>
 
 </body>
