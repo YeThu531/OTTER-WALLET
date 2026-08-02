@@ -488,6 +488,32 @@
 
 
 loadTasksFromFirebase();
+  // Task ပြီးမြောက်ပါက Coin ပေါင်းပေးမည့် Logic
+function completeTask(taskId, link, reward) {
+    window.open(link, '_blank');
+
+    let completedTasks = JSON.parse(localStorage.getItem('completed_tasks')) || [];
+
+    if (!completedTasks.includes(taskId)) {
+        completedTasks.push(taskId);
+        localStorage.setItem('completed_tasks', JSON.stringify(completedTasks));
+
+        otterBalance += Number(reward);
+        localStorage.setItem('otter_balance', otterBalance);
+        updateBalanceUI();
+
+        const btn = document.getElementById(`btn-${taskId}`);
+        if (btn) {
+            btn.innerText = "Done";
+            btn.style.background = "#22c55e";
+            btn.disabled = true;
+        }
+
+        alert(`Congratulations! You earned +${reward} $OTTER`);
+    } else {
+        alert("You have already completed this task!");
+    }
+}
 </script>
 
 </body>
