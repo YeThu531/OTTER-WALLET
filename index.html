@@ -682,7 +682,7 @@ function claimDailyReward() {
   claimStreakDay(1, 40);
 }
   function updateStreakUI() {
-    let lastStreak = parseInt(localStorage.getItem('last_streak_claimed')) || 0;
+ let lastStreak = parseInt(localStorage.getItem('last_streak_claimed')) || 0;
     const streakDays = document.querySelectorAll('.streak-day');
     
     streakDays.forEach((dayEl, index) => {
