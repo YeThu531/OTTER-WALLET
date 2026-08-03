@@ -563,38 +563,38 @@ function switchPage(pageId, btnElement) {
 
 // 2. FIRESTORE REAL-TIME TASKS FETCHING
 function fetchFirebaseTasks() {
-  const taskListContainer = document.getElementById('tasks-list');
-  if (!taskListContainer || typeof db === 'undefined') return;
+    const taskListContainer = document.getElementById('tasks-list');
+    if (!taskListContainer) return;
 
-  db.collection("tasks").onSnapshot((snapshot) => {
-    taskListContainer.innerHTML = "";
-    if (snapshot.empty) {
-      taskListContainer.innerHTML = "<p style='color: #888; text-align: center;'>No tasks available right now.</p>";
-      return;
-    }
+    db.collection("tasks").onSnapshot((snapshot) => {
+        taskListContainer.innerHTML = "";
+        if (snapshot.empty) {
+            taskListContainer.innerHTML = "<p style='color: #888; text-align: center;'>No tasks available right now.</p>";
+            return;
+        }
 
-    snapshot.forEach((doc) => {
-      const task = doc.data();
-      const taskCard = document.createElement('div');
-      taskCard.className = 'task-card';
-      taskCard.style = "background: #1e293b; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;";
-      
-      taskCard.innerHTML = `
-        <div>
-          <h4 style="margin:0; color:#fff;">${task.title || 'Community Task'}</h4>
-          <span style="color:#10b981; font-size:12px;">+${task.reward || 100} $OTTER</span>
-        </div>
-        <a href="${task.link || '#'}" target="_blank" onclick="completeTask('${doc.id}', ${task.reward || 100})" 
-           style="background:#3b82f6; color:#fff; padding:8px 16px; border-radius:8px; text-decoration:none; font-weight:bold; font-size:14px;">
-           Start
-        </a>
-      `;
-      taskListContainer.appendChild(taskCard);
+        snapshot.forEach((doc) => {
+            const task = doc.data();
+            const taskCard = document.createElement('div');
+            taskCard.className = 'task-card';
+            taskCard.style = "background: #1e293b; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;";
+
+            taskCard.innerHTML = `
+                <div>
+                    <h4 style="margin:0; color:#fff;">${task.title || 'Community Task'}</h4>
+                    <span style="color:#10b981; font-size:12px;">+${task.reward || 100} $OTTER</span>
+                </div>
+                <a href="${task.url || '#'}" target="_blank" onclick="completeTask('${doc.id}', ${task.reward || 100})" 
+                   style="background:#3b82f6; color:#fff; padding:8px 16px; border-radius:8px; text-decoration:none; font-weight:bold;">
+                   Start
+                </a>
+            `;
+            taskListContainer.appendChild(taskCard);
+        });
+    }, (error) => {
+        console.error("Error loading tasks: ", error);
     });
-  }, (error) => {
-    console.error("Error loading tasks: ", error);
-  });
-}
+  }
 
 function completeTask(taskId, reward) {
   let otterBalance = parseInt(localStorage.getItem('otter_balance')) || 0;
