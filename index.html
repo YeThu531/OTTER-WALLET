@@ -533,9 +533,35 @@
 </div>
 
 <script>
+// 1. PAGE NAVIGATION SYSTEM (Fixed)
+function switchPage(pageId, btnElement) {
+  // Hide all pages
+  var pages = document.getElementsByClassName('page');
+  for (var i = 0; i < pages.length; i++) {
+    pages[i].style.display = 'none';
+    pages[i].classList.remove('active');
+  }
 
+  // Remove active state from all buttons
+  var navItems = document.getElementsByClassName('nav-item');
+  for (var j = 0; j < navItems.length; j++) {
+    navItems[j].classList.remove('active');
+  }
 
-// ၁။ TON CONNECT INITIALIZATION
+  // Show selected page
+  var targetPage = document.getElementById(pageId);
+  if (targetPage) {
+    targetPage.style.display = 'flex';
+    targetPage.classList.add('active');
+  }
+
+  // Active state for clicked button
+  if (btnElement) {
+    btnElement.classList.add('active');
+  }
+}
+
+// 2. TON CONNECT INITIALIZATION
 try {
   if (typeof TON_CONNECT_UI !== 'undefined') {
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
@@ -544,115 +570,112 @@ try {
     });
   }
 } catch (e) {
-  console.log("TonConnect Error: ", e);
+  console.log("TonConnect Error:", e);
+}
+
+// 3. LOCAL STORAGE & BALANCE LOGIC
+let otterBalance = parseInt(localStorage.getItem('otter_balance')) || 0;
+let lastClaimTime = parseInt(localStorage.getItem('last_claim_time')) || 0;
+
+function updateBalanceUI() {
+  var balElement = document.getElementById('home-otter-balance');
+  if (balElement) {
+    balElement.innerText = otterBalance.toLocaleString() + " $OTTER";
   }
+}
 
-  // ၂။ PAGE NAVIGATION SYSTEM
-  function switchPage(pageId, btnElement) {
-  const pages = document.querySelectorAll('.page');
-  pages.forEach(p => p.classList.remove('active'));
+// 4. DAILY CLAIM SYSTEM
+function checkClaimStatus() {
+  const now = Date.now();
+  const cooldown = 24 * 60 * 60 * 1000;
+  const claimBtn = document.getElementById('claim-btn');
+  const timerText = document.getElementById('timer-text');
 
-  const navItems = document.querySelectorAll('.nav-item');
-  navItems.forEach(btn => btn.classList.remove('active'));
+  if (!claimBtn) return;
 
-  const selectedPage = document.getElementById(pageId);
-  if (selectedPage) {
-    selectedPage.classList.add('active');
+  if (now - lastClaimTime >= cooldown) {
+    claimBtn.disabled = false;
+    claimBtn.innerText = "Claim 40 $OTTER";
+    if (timerText) timerText.innerText = "Daily reward is ready to claim!";
+  } else {
+    claimBtn.disabled = true;
+    const timeLeft = cooldown - (now - lastClaimTime);
+    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+    claimBtn.innerText = "Claimed";
+    if (timerText) timerText.innerText = `Next claim in: ${hours}h ${minutes}m ${seconds}s`;
   }
-  if (btnElement) {
-    btnElement.classList.add('active');
+}
+
+function claimDailyReward() {
+  const now = Date.now();
+  const cooldown = 24 * 60 * 60 * 1000;
+
+  if (now - lastClaimTime >= cooldown) {
+    otterBalance += 40;
+    lastClaimTime = now;
+
+    localStorage.setItem('otter_balance', otterBalance);
+    localStorage.setItem('last_claim_time', lastClaimTime);
+
+    updateBalanceUI();
+    checkClaimStatus();
+    alert("40 $OTTER Done!");
   }
+}
+
+// 5. ROAD TO TGE COUNTDOWN SYSTEM
+const tgeTargetDate = new Date("December 31, 2027 23:59:59").getTime();
+
+function updateTgeCountdown() {
+  const now = new Date().getTime();
+  const difference = tgeTargetDate - now;
+
+  if (difference > 0) {
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+    if (document.getElementById("days")) {
+      document.getElementById("days").innerText = days.toString().padStart(2, '0');
+      document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
+      document.getElementById("minutes").innerText = minutes.toString().padStart(2, '0');
+      document.getElementById("seconds").innerText = seconds.toString().padStart(2, '0');
+    }
   }
+}
 
-  // ၃။ LOCAL STORAGE & BALANCE LOGIC
-  let otterBalance = parseInt(localStorage.getItem('otter_balance')) || 0;
-  let lastClaimTime = parseInt(localStorage.getItem('last_claim_time')) || 0;
+setInterval(updateTgeCountdown, 1000);
 
-  function updateBalanceUI() {
-      document.getElementById('home-otter-balance').innerText = otterBalance.toLocaleString() + " $OTTER";
+function openTgeModal() {
+  var modal = document.getElementById("tge-modal");
+  if (modal) {
+    modal.style.display = "flex";
+    updateTgeCountdown();
   }
+}
 
-  // ၄။ DAILY CLAIM SYSTEM (24 HR COOLDOWN)
-  function checkClaimStatus() {
-      const now = Date.now();
-      const cooldown = 24 * 60 * 60 * 1000;
-      const claimBtn = document.getElementById('claim-btn');
-      const timerText = document.getElementById('timer-text');
-
-      if (!claimBtn) return;
-
-      if (now - lastClaimTime >= cooldown) {
-          claimBtn.disabled = false;
-          claimBtn.innerText = "Claim 40 $OTTER";
-          timerText.innerText = "Daily reward is ready to claim!";
-      } else {
-          claimBtn.disabled = true;
-          const timeLeft = cooldown - (now - lastClaimTime);
-          const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-          const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-          
-          claimBtn.innerText = "Claimed";
-          timerText.innerText = `Next claim in: ${hours}h ${minutes}m ${seconds}s`;
-      }
+function closeTgeModal() {
+  var modal = document.getElementById("tge-modal");
+  if (modal) {
+    modal.style.display = "none";
   }
+}
 
-  function claimDailyReward() {
-      const now = Date.now();
-      const cooldown = 24 * 60 * 60 * 1000;
+function shareInviteLink() {
+  const botUsername = "OtterWallet_Bot";
+  const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}&text=Join%20Otter%20Wallet`;
+  window.open(shareUrl, '_blank');
+}
 
-      if (now - lastClaimTime >= cooldown) {
-          otterBalance += 40;
-          lastClaimTime = now;
-          
-          localStorage.setItem('otter_balance', otterBalance);
-          localStorage.setItem('last_claim_time', lastClaimTime);
+async function sendTonTransaction() {
+  alert("TON Transaction Feature Coming Soon!");
+}
 
-          updateBalanceUI();
-          checkClaimStatus();
-          alert("40 $OTTER Done!");
-      }
-  }
-
-  // ၅။ ROAD TO TGE COUNTDOWN SYSTEM (Target Dec 31, 2027)
-  const tgeTargetDate = new Date("December 31, 2027 23:59:59").getTime();
-
-  function updateTgeCountdown() {
-      const now = new Date().getTime();
-      const difference = tgeTargetDate - now;
-
-      if (difference > 0) {
-          const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-          if(document.getElementById("days")) {
-            document.getElementById("days").innerText = days.toString().padStart(2, '0');
-            document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
-            document.getElementById("minutes").innerText = minutes.toString().padStart(2, '0');
-            document.getElementById("seconds").innerText = seconds.toString().padStart(2, '0');
-          }
-      }
-  }
-  setInterval(updateTgeCountdown, 1000);
+// Initialize logic
 updateBalanceUI();
 checkClaimStatus();
-  function openTgeModal() {
-      document.getElementById("tge-modal").style.display = "flex";
-      updateTgeCountdown();
-  }
-  function closeTgeModal() {
-      document.getElementById("tge-modal").style.display = "none";
-  }
-
-  // ၆။ INVITE SHARE LINK
-  function shareInviteLink() {
-      const botUsername = "OtterWallet_Bot"; 
-      const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}&text=Join%20Otter%20Wallet%20and%20earn%20free%20tokens!`;
-      window.open(shareUrl, '_blank');
-  }
-
-  // ၇။ TON DEPOSIT TRANSACTION
-  async function sendTonTransaction() {
-  
+</script>
