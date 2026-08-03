@@ -592,8 +592,8 @@ function fetchFirebaseTasks() {
             taskListContainer.appendChild(taskCard);
         });
     }, (error) => {
-        console.error("Error loading tasks: ", error);
-    });
+    alert("Firebase Error: " + error.message);
+});
   }
 
 function completeTask(taskId, reward) {
