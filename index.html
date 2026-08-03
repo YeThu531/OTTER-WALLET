@@ -532,101 +532,149 @@
   </button>
 </div>
 
-<script>
-// 1. PAGE NAVIGATION SYSTEM (Fixed)
+ <script>
+// 1. PAGE NAVIGATION SYSTEM
 function switchPage(pageId, btnElement) {
-  // Hide all pages
   var pages = document.getElementsByClassName('page');
   for (var i = 0; i < pages.length; i++) {
     pages[i].style.display = 'none';
     pages[i].classList.remove('active');
   }
 
-  // Remove active state from all buttons
   var navItems = document.getElementsByClassName('nav-item');
   for (var j = 0; j < navItems.length; j++) {
     navItems[j].classList.remove('active');
   }
 
-  // Show selected page
   var targetPage = document.getElementById(pageId);
   if (targetPage) {
     targetPage.style.display = 'flex';
     targetPage.classList.add('active');
   }
 
-  // Active state for clicked button
   if (btnElement) {
     btnElement.classList.add('active');
   }
 }
 
-// 2. TON CONNECT INITIALIZATION
-try {
-  if (typeof TON_CONNECT_UI !== 'undefined') {
-    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-      manifestUrl: 'https://yethu531.github.io/OTTER-WALLET/tonconnect-manifest.json',
-      buttonRootId: 'ton-connect'
+// 2. FIRESTORE REAL-TIME TASKS FETCHING
+function fetchFirebaseTasks() {
+  const taskListContainer = document.getElementById('task-list') || document.querySelector('.tasks-container');
+  if (!taskListContainer || typeof db === 'undefined') return;
+
+  db.collection("tasks").onSnapshot((snapshot) => {
+    taskListContainer.innerHTML = ""; // Clear existing
+    if (snapshot.empty) {
+      taskListContainer.innerHTML = "<p style='color: #888; text-align: center;'>No tasks available right now.</p>";
+      return;
+    }
+
+    snapshot.forEach((doc) => {
+      const task = doc.data();
+      const taskCard = document.createElement('div');
+      taskCard.className = 'task-card';
+      taskCard.style = "background: #1e293b; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;";
+      
+      taskCard.innerHTML = `
+        <div>
+          <h4 style="margin:0; color:#fff;">${task.title || 'Community Task'}</h4>
+          <span style="color:#10b981; font-size:12px;">+${task.reward || 100} $OTTER</span>
+        </div>
+        <a href="${task.link || '#'}" target="_blank" onclick="completeTask('${doc.id}', ${task.reward || 100})" 
+           style="background:#3b82f6; color:#fff; padding:8px 16px; border-radius:8px; text-decoration:none; font-weight:bold; font-size:14px;">
+           Start
+        </a>
+      `;
+      taskListContainer.appendChild(taskCard);
     });
-  }
-} catch (e) {
-  console.log("TonConnect Error:", e);
+  }, (error) => {
+    console.error("Error loading tasks: ", error);
+  });
 }
 
-// 3. LOCAL STORAGE & BALANCE LOGIC
-let otterBalance = parseInt(localStorage.getItem('otter_balance')) || 0;
-let lastClaimTime = parseInt(localStorage.getItem('last_claim_time')) || 0;
+function completeTask(taskId, reward) {
+  let otterBalance = parseInt(localStorage.getItem('otter_balance')) || 0;
+  otterBalance += reward;
+  localStorage.setItem('otter_balance', otterBalance);
+  updateBalanceUI();
+  alert(`Task Completed! You earned +${reward} $OTTER`);
+}
 
+// 3. FIRESTORE REAL-TIME LEADERBOARD (Real Users Only)
+function fetchRealLeaderboard() {
+  const leaderboardContainer = document.getElementById('leaderboard-list') || document.querySelector('.leaderboard');
+  if (!leaderboardContainer || typeof db === 'undefined') return;
+
+  db.collection("users").orderBy("invites", "desc").limit(10).onSnapshot((snapshot) => {
+    leaderboardContainer.innerHTML = "";
+    if (snapshot.empty) {
+      leaderboardContainer.innerHTML = "<p style='color: #888; text-align: center;'>No top referrers yet. Be the first!</p>";
+      return;
+    }
+
+    let rank = 1;
+    snapshot.forEach((doc) => {
+      const user = doc.data();
+      const item = document.createElement('div');
+      item.className = 'leaderboard-item';
+      item.style = "background: #1e293b; padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between;";
+      
+      item.innerHTML = `
+        <span style="color: #fff; font-weight: bold;">#${rank} ${user.username || 'Anonymous'}</span>
+        <span style="color: #3b82f6;">${user.invites || 0} Invites</span>
+      `;
+      leaderboardContainer.appendChild(item);
+      rank++;
+    });
+  });
+}
+
+// 4. DAILY STREAK INTERACTIVE SYSTEM
+function claimStreakDay(dayNumber, rewardAmount) {
+  let lastStreak = parseInt(localStorage.getItem('last_streak_claimed')) || 0;
+  
+  if (dayNumber <= lastStreak) {
+    alert("ဒီနေ့အတွက် Reward ယူပြီးသားဖြစ်ပါတယ်!");
+    return;
+  }
+  
+  if (dayNumber > lastStreak + 1) {
+    alert(`Day ${lastStreak + 1} ကို အရင် Claim ပေးပါ။`);
+    return;
+  }
+
+  let otterBalance = parseInt(localStorage.getItem('otter_balance')) || 0;
+  otterBalance += rewardAmount;
+  localStorage.setItem('otter_balance', otterBalance);
+  localStorage.setItem('last_streak_claimed', dayNumber);
+
+  updateBalanceUI();
+  alert(`Day ${dayNumber} Streak Claimed! +${rewardAmount} $OTTER`);
+}
+
+// 5. BALANCE & UI UPDATE
 function updateBalanceUI() {
+  let otterBalance = parseInt(localStorage.getItem('otter_balance')) || 0;
   var balElement = document.getElementById('home-otter-balance');
   if (balElement) {
     balElement.innerText = otterBalance.toLocaleString() + " $OTTER";
   }
 }
 
-// 4. DAILY CLAIM SYSTEM
-function checkClaimStatus() {
-  const now = Date.now();
-  const cooldown = 24 * 60 * 60 * 1000;
-  const claimBtn = document.getElementById('claim-btn');
-  const timerText = document.getElementById('timer-text');
-
-  if (!claimBtn) return;
-
-  if (now - lastClaimTime >= cooldown) {
-    claimBtn.disabled = false;
-    claimBtn.innerText = "Claim 40 $OTTER";
-    if (timerText) timerText.innerText = "Daily reward is ready to claim!";
-  } else {
-    claimBtn.disabled = true;
-    const timeLeft = cooldown - (now - lastClaimTime);
-    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-    claimBtn.innerText = "Claimed";
-    if (timerText) timerText.innerText = `Next claim in: ${hours}h ${minutes}m ${seconds}s`;
-  }
+// 6. DYNAMIC USER INVITE LINK
+function shareInviteLink() {
+  const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+  const userId = telegramUser ? telegramUser.id : "guest";
+  const botUsername = "OtterWallet_Bot"; // မိမိ Bot Username အမှန်ပြောင်းပေးပါ
+  
+  const refUrl = `https://t.me/${botUsername}?start=ref_${userId}`;
+  const shareText = `Join Otter Wallet and earn free $OTTER coins! 🚀\n${refUrl}`;
+  
+  const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(refUrl)}&text=${encodeURIComponent(shareText)}`;
+  window.open(telegramShareUrl, '_blank');
 }
 
-function claimDailyReward() {
-  const now = Date.now();
-  const cooldown = 24 * 60 * 60 * 1000;
-
-  if (now - lastClaimTime >= cooldown) {
-    otterBalance += 40;
-    lastClaimTime = now;
-
-    localStorage.setItem('otter_balance', otterBalance);
-    localStorage.setItem('last_claim_time', lastClaimTime);
-
-    updateBalanceUI();
-    checkClaimStatus();
-    alert("40 $OTTER Done!");
-  }
-}
-
-// 5. ROAD TO TGE COUNTDOWN SYSTEM
+// 7. ROAD TO TGE COUNTDOWN
 const tgeTargetDate = new Date("December 31, 2027 23:59:59").getTime();
 
 function updateTgeCountdown() {
@@ -650,32 +698,8 @@ function updateTgeCountdown() {
 
 setInterval(updateTgeCountdown, 1000);
 
-function openTgeModal() {
-  var modal = document.getElementById("tge-modal");
-  if (modal) {
-    modal.style.display = "flex";
-    updateTgeCountdown();
-  }
-}
-
-function closeTgeModal() {
-  var modal = document.getElementById("tge-modal");
-  if (modal) {
-    modal.style.display = "none";
-  }
-}
-
-function shareInviteLink() {
-  const botUsername = "OtterWallet_Bot";
-  const shareUrl = `https://t.me/share/url?url=https://t.me/${botUsername}&text=Join%20Otter%20Wallet`;
-  window.open(shareUrl, '_blank');
-}
-
-async function sendTonTransaction() {
-  alert("TON Transaction Feature Coming Soon!");
-}
-
-// Initialize logic
+// Initialize all Systems
 updateBalanceUI();
-checkClaimStatus();
-</script>
+fetchFirebaseTasks();
+fetchRealLeaderboard();
+ </script>
