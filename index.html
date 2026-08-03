@@ -538,14 +538,15 @@
 </div>
 
 <script>
-  // Opening Splash Screen Handler
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      const splash = document.getElementById('splash-screen');
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const splash = document.getElementById('splash-screen');
+    if (splash) {
       splash.style.opacity = '0';
-      setTimeout(() => splash.style.display = 'none', 500);
-    }, 1800);
-  });
+      setTimeout(() => splash.style.display = 'none', 300);
+    }
+  }, 1200);
+});
 
   // ၁။ TON CONNECT INITIALIZATION
   const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
