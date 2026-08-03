@@ -547,11 +547,17 @@
   }, 1000); // ၁ စက္ကန့်ပြည့်တာနဲ့ ချက်ချင်း ဖျောက်မည်
 })();
 
-  // ၁။ TON CONNECT INITIALIZATION
-  const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+// ၁။ TON CONNECT INITIALIZATION
+try {
+  if (typeof TON_CONNECT_UI !== 'undefined') {
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: 'https://yethu531.github.io/OTTER-WALLET/tonconnect-manifest.json',
       buttonRootId: 'ton-connect'
-  });
+    });
+  }
+} catch (e) {
+  console.log("TonConnect Error: ", e);
+  }
 
   // ၂။ PAGE NAVIGATION SYSTEM
   function switchPage(pageId, btnElement) {
