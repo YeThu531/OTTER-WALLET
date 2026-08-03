@@ -533,19 +533,7 @@
 </div>
 
 <script>
-// Instant Splash Screen Removal (Wait လုံးဝမလုပ်ဘဲ တန်းအလုပ်လုပ်မည်)
-(function() {
-  setTimeout(function() {
-    var splash = document.getElementById('splash-screen');
-    if (splash) {
-      splash.style.opacity = '0';
-      splash.style.pointerEvents = 'none';
-      setTimeout(function() {
-        splash.style.display = 'none';
-      }, 300);
-    }
-  }, 1000); // ၁ စက္ကန့်ပြည့်တာနဲ့ ချက်ချင်း ဖျောက်မည်
-})();
+
 
 // ၁။ TON CONNECT INITIALIZATION
 try {
