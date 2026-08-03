@@ -643,52 +643,7 @@ function fetchRealLeaderboard() {
   });
 }
 
-// 4. DAILY STREAK CLICKABLE SYSTEM
-function claimStreakDay(dayNumber, rewardAmount) {
-  let lastStreak = parseInt(localStorage.getItem('last_streak_claimed')) || 0;
-  
- if (dayNumber <= lastStreak) {
-    alert("You have already claimed today's reward!");
-    return;
-}
 
-if (dayNumber > lastStreak + 1) {
-    alert("Please claim Day " + (lastStreak + 1) + " first!");
-    return;
-  } 
-
-  let otterBalance = parseInt(localStorage.getItem('otter_balance')) || 0;
-  otterBalance += rewardAmount;
-  localStorage.setItem('otter_balance', otterBalance);
-  localStorage.setItem('last_streak_claimed', dayNumber);
-
-  updateBalanceUI();
-  updateStreakUI();
-  alert("Day " + dayNumber + " Streak Claimed! +" + rewardAmount + " $OTTER");
-}
-
-function claimDailyReward() {
-  claimStreakDay(1, 40);
-}
-  function updateStreakUI() {
- let lastStreak = parseInt(localStorage.getItem('last_streak_claimed')) || 0;
-    const streakDays = document.querySelectorAll('.streak-day');
-    
-    streakDays.forEach((dayEl, index) => {
-        const dayNum = index + 1;
-        dayEl.classList.remove('claimed', 'active', 'disabled');
-        
-        if (dayNum <= lastStreak) {
-            // ရယူပြီးသား ရက်များ - မှိန်သွားမည်
-            dayEl.classList.add('claimed');
-        } else if (dayNum === lastStreak + 1) {
-            // နောက်ထပ် ရယူရမည့် ရက် - လင်းနေမည်
-            dayEl.classList.add('active');
-        } else {
-            // မရောက်သေးသော ရက်များ
-            dayEl.classList.add('disabled');
-        }
-    });
 
     // အောက်က Claim 40 $OTTER / 24 Hours Button ကို Disable / Enable လုပ်ခြင်း
     const claimBtn = document.getElementById('claim-btn');
