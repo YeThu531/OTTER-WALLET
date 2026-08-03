@@ -199,7 +199,21 @@
       justify-content: space-between;
       align-items: center;
     }
+.status-dot-green {
+  width: 8px;
+  height: 8px;
+  background-color: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+  animation: blink-animation 1.2s infinite ease-in-out;
+}
 
+@keyframes blink-animation {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.2; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
     /* Daily Streak Grid */
     .streak-grid {
       display: grid;
