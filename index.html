@@ -636,7 +636,8 @@ try {
       }
   }
   setInterval(updateTgeCountdown, 1000);
-
+updateBalanceUI();
+checkClaimStatus();
   function openTgeModal() {
       document.getElementById("tge-modal").style.display = "flex";
       updateTgeCountdown();
