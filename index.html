@@ -650,15 +650,15 @@ function fetchRealLeaderboard() {
 function claimStreakDay(dayNumber, rewardAmount) {
   let lastStreak = parseInt(localStorage.getItem('last_streak_claimed')) || 0;
   
-  if (dayNumber <= lastStreak) {
-    alert("ဒီနေ့အတွက် Reward ယူပြီးသားဖြစ်ပါတယ်!");
+ if (dayNumber <= lastStreak) {
+    alert("You have already claimed today's reward!");
     return;
-  }
-  
-  if (dayNumber > lastStreak + 1) {
-    alert("Day " + (lastStreak + 1) + " ကို အရင် Claim ပေးပါ။");
+}
+
+if (dayNumber > lastStreak + 1) {
+    alert("Please claim Day " + (lastStreak + 1) + " first!");
     return;
-  }
+  } 
 
   let otterBalance = parseInt(localStorage.getItem('otter_balance')) || 0;
   otterBalance += rewardAmount;
