@@ -480,13 +480,13 @@
     <!-- Daily Streak System -->
     <h3>Daily Check-in Streak</h3>
     <div class="streak-grid">
-      <div class="streak-day active">Day 1<br><b>+10</b></div>
-      <div class="streak-day">Day 2<br><b>+20</b></div>
-      <div class="streak-day">Day 3<br><b>+30</b></div>
-      <div class="streak-day">Day 4<br><b>+40</b></div>
-      <div class="streak-day">Day 5<br><b>+50</b></div>
-      <div class="streak-day">Day 6<br><b>+60</b></div>
-      <div class="streak-day" style="grid-column: span 2; background: rgba(245, 158, 11, 0.2); border-color:#f59e0b;">Day 7 🎉<br><b>+100</b></div>
+  <div class="streak-day" onclick="claimStreakDay(1, 10)">Day 1<br><b>+10</b></div>
+  <div class="streak-day" onclick="claimStreakDay(2, 20)">Day 2<br><b>+20</b></div>
+  <div class="streak-day" onclick="claimStreakDay(3, 30)">Day 3<br><b>+30</b></div>
+  <div class="streak-day" onclick="claimStreakDay(4, 40)">Day 4<br><b>+40</b></div>
+  <div class="streak-day" onclick="claimStreakDay(5, 50)">Day 5<br><b>+50</b></div>
+  <div class="streak-day" onclick="claimStreakDay(6, 60)">Day 6<br><b>+60</b></div>
+  <div class="streak-day" style="grid-column: span 2;" onclick="claimStreakDay(7, 100)">Day 7 🎁<br><b>+100</b></div>
     </div>
 
     <div class="balance-card" style="margin-top: 15px;">
