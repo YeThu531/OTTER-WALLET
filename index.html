@@ -575,10 +575,11 @@ function switchPage(pageId, btnElement) {
   }
 }
 
+
 // 2. FIRESTORE REAL-TIME TASKS FETCHING
 function fetchFirebaseTasks() {
     const taskListContainer = document.getElementById('tasks-list');
-    if (!taskListContainer) return;
+    if (!taskListContainer || typeof db === 'undefined') return;
 
     db.collection("tasks").onSnapshot((snapshot) => {
         taskListContainer.innerHTML = "";
@@ -589,35 +590,44 @@ function fetchFirebaseTasks() {
 
         snapshot.forEach((doc) => {
             const task = doc.data();
+            const taskId = doc.id;
+            const isCompleted = localStorage.getItem('task_completed_' + taskId);
+
             const taskCard = document.createElement('div');
             taskCard.className = 'task-card';
             taskCard.style = "background: #1e293b; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;";
+
+            const buttonHTML = isCompleted 
+                ? `<button disabled style="background:#475569; color:#94a3b8; padding:8px 16px; border-radius:8px; border:none; font-weight:bold; cursor:not-allowed;">Done</button>`
+                : `<a href="${task.url || '#'}" target="_blank" onclick="completeTask('${taskId}', ${task.reward || 100})" 
+                     style="background:#3b82f6; color:#fff; padding:8px 16px; border-radius:8px; text-decoration:none; font-weight:bold;">Start</a>`;
 
             taskCard.innerHTML = `
                 <div>
                     <h4 style="margin:0; color:#fff;">${task.title || 'Community Task'}</h4>
                     <span style="color:#10b981; font-size:12px;">+${task.reward || 100} $OTTER</span>
                 </div>
-                <a href="${task.url || '#'}" target="_blank" onclick="completeTask('${doc.id}', ${task.reward || 100})" 
-                   style="background:#3b82f6; color:#fff; padding:8px 16px; border-radius:8px; text-decoration:none; font-weight:bold;">
-                   Start
-                </a>
+                ${buttonHTML}
             `;
             taskListContainer.appendChild(taskCard);
         });
     }, (error) => {
-    alert("Firebase Error: " + error.message);
-});
-  }
-
-function completeTask(taskId, reward) {
-  let otterBalance = parseInt(localStorage.getItem('otter_balance')) || 0;
-  otterBalance += reward;
-  localStorage.setItem('otter_balance', otterBalance);
-  updateBalanceUI();
-  alert("Task Completed! You earned +" + reward + " $OTTER");
+        console.error("Error loading tasks: ", error);
+    });
 }
 
+function completeTask(taskId, reward) {
+    localStorage.setItem('task_completed_' + taskId, 'true');
+
+    let otterBalance = parseInt(localStorage.getItem('otter_balance')) || 0;
+    otterBalance += reward;
+    localStorage.setItem('otter_balance', otterBalance);
+    
+    updateBalanceUI();
+    alert("Task Completed! You earned +" + reward + " $OTTER");
+    
+    fetchFirebaseTasks();
+  }
 // 3. FIRESTORE REAL-TIME LEADERBOARD
 function fetchRealLeaderboard() {
   const leaderboardContainer = document.getElementById('leaderboard-list');
