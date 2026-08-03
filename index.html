@@ -539,13 +539,16 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    const splash = document.getElementById('splash-screen');
-    if (splash) {
+  const splash = document.getElementById('splash-screen');
+  if (splash) {
+    setTimeout(() => {
       splash.style.opacity = '0';
-      setTimeout(() => splash.style.display = 'none', 300);
-    }
-  }, 1200);
+      splash.style.pointerEvents = 'none'; // Splash screen ကို နှိပ်လို့မရအောင် ပိတ်မည်
+      setTimeout(() => {
+        splash.style.display = 'none';
+      }, 500); // 0.5 စက္ကန့်အကြာတွင် လုံးဝဖျောက်မည်
+    }, 1000); // 1 စက္ကန့်အကြာတွင် အလုပ်လုပ်မည်
+  }
 });
 
   // ၁။ TON CONNECT INITIALIZATION
