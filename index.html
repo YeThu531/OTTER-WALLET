@@ -675,6 +675,7 @@ if (dayNumber > lastStreak + 1) {
   localStorage.setItem('last_streak_claimed', dayNumber);
 
   updateBalanceUI();
+  updateStreakUI();
   alert("Day " + dayNumber + " Streak Claimed! +" + rewardAmount + " $OTTER");
 }
 
