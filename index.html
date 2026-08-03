@@ -12,7 +12,21 @@
   <!-- Firebase App & Firestore SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCx7Ypi5e-pNjyvJiVy0hzOdcRKid09O9w",
+    authDomain: "otter-wallet-app.firebaseapp.com",
+    projectId: "otter-wallet-app",
+    storageBucket: "otter-wallet-app.firebasestorage.app",
+    messagingSenderId: "105624753471",
+    appId: "1:105624753471:web:fd02aa170f6287207cef8a",
+    measurementId: "G-6NQ58HZCT9"
+  };
 
+  // Firebase & Firestore Initialize
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
   <style>
     :root {
       --bg-color: #0f172a;
