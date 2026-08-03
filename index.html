@@ -538,18 +538,19 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const splash = document.getElementById('splash-screen');
-  if (splash) {
-    setTimeout(() => {
+// Instant Splash Screen Removal (Wait လုံးဝမလုပ်ဘဲ တန်းအလုပ်လုပ်မည်)
+(function() {
+  setTimeout(function() {
+    var splash = document.getElementById('splash-screen');
+    if (splash) {
       splash.style.opacity = '0';
-      splash.style.pointerEvents = 'none'; // Splash screen ကို နှိပ်လို့မရအောင် ပိတ်မည်
-      setTimeout(() => {
+      splash.style.pointerEvents = 'none';
+      setTimeout(function() {
         splash.style.display = 'none';
-      }, 500); // 0.5 စက္ကန့်အကြာတွင် လုံးဝဖျောက်မည်
-    }, 1000); // 1 စက္ကန့်အကြာတွင် အလုပ်လုပ်မည်
-  }
-});
+      }, 300);
+    }
+  }, 1000); // ၁ စက္ကန့်ပြည့်တာနဲ့ ချက်ချင်း ဖျောက်မည်
+})();
 
   // ၁။ TON CONNECT INITIALIZATION
   const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
