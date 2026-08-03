@@ -643,11 +643,10 @@ function fetchRealLeaderboard() {
   });
 }
 
-
-
-    // အောက်က Claim 40 $OTTER / 24 Hours Button ကို Disable / Enable လုပ်ခြင်း
+// အောက်က Claim 40 $OTTER / 24 Hours Button ကို Disable / Enable လုပ်ခြင်း
+function check24hClaimButton() {
     const claimBtn = document.getElementById('claim-btn');
-  let lastStreak = parseInt(localStorage.getItem('last_streak_claimed')) || 0;
+    let lastStreak = parseInt(localStorage.getItem('last_streak_claimed')) || 0;
     if (claimBtn) {
         if (lastStreak >= 1) {
             claimBtn.disabled = true;
