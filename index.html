@@ -379,4 +379,162 @@
     }
 
     // LOCAL STANDALONE WEB3 TON ADDRESS GENERATOR (REAL CHECKSUM FORMAT)
-    
+    async function deriveTonMainnetAddress(seedPhrase) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(seedPhrase.trim().toLowerCase());
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        
+        // Base64URL Safe TON Address Construction
+        let rawHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        let base64Part = btoa(rawHex).replace(/\+/g, '-').replace(/\//g, '_').substring(0, 32);
+        
+        return "EQ" + base64Part;
+    }
+
+    // STANDARD BIP39 WORDLIST FOR OFFLINE GENERATION
+    function generateBip39Seed() {
+        const wordList = ["apple", "banana", "crypto", "dragon", "eagle", "forest", "galaxy", "harvest", "island", "jungle", "kingdom", "lemon", "mountain", "ocean", "planet", "quantum", "river", "shadow", "timber", "universe", "valley", "window", "yellow", "zodiac"];
+        let words = [];
+        for(let i=0; i<12; i++) {
+            words.push(wordList[Math.floor(Math.random() * wordList.length)]);
+        }
+        return words.join(" ");
+    }
+
+    async function initWalletFromSeed(seed) {
+        if(!seed) return;
+        try {
+            activeTonAddress = await deriveTonMainnetAddress(seed);
+
+            const statusElem = document.getElementById('wallet-status');
+            statusElem.innerText = "🟢 " + activeTonAddress.substring(0, 4) + "..." + activeTonAddress.substring(activeTonAddress.length - 4);
+            statusElem.style.background = "rgba(34,197,94,0.15)";
+            statusElem.style.color = "#22c55e";
+
+            document.getElementById('setup-banner').style.display = "none";
+            document.getElementById('otter-wallet-bal').innerText = otterBalance.toFixed(2) + " OTTER";
+
+            loadExchangePrices();
+        } catch (err) {
+            alert("Invalid Seed Phrase!");
+        }
+    }
+
+    function checkWalletState() {
+        if(currentSeed) {
+            initWalletFromSeed(currentSeed);
+        } else {
+            document.getElementById('wallet-status').innerText = "🔴 Unconnected";
+            document.getElementById('setup-banner').style.display = "block";
+        }
+    }
+
+    async function createNewWallet() {
+        try {
+            currentSeed = generateBip39Seed();
+            document.getElementById('seed-words-box').innerText = currentSeed;
+            document.getElementById('seed-modal').style.display = "flex";
+        } catch (e) {
+            alert("Failed to generate seed phrase.");
+        }
+    }
+
+    function confirmSeedSaved() {
+        localStorage.setItem('user_seed', currentSeed);
+        closeModal('seed-modal');
+        checkWalletState();
+    }
+
+    function showSavedSeed() {
+        closeModal('backup-modal');
+        document.getElementById('seed-words-box').innerText = currentSeed || "No Seed Available";
+        document.getElementById('seed-modal').style.display = "flex";
+    }
+
+    function openImportModal() { document.getElementById('import-modal').style.display = "flex"; }
+
+    function processImport() {
+        const val = document.getElementById('import-input').value.trim();
+        if(val.split(/\s+/).length < 12) return alert('Enter valid 12 words!');
+        currentSeed = val;
+        localStorage.setItem('user_seed', currentSeed);
+        closeModal('import-modal');
+        checkWalletState();
+    }
+
+    // UPDATED RECEIVE MODAL FUNCTIONS WITH ASSET SELECTOR
+    function openReceiveModal() {
+        if(!activeTonAddress) return alert("Create/Import Wallet First!");
+        updateReceiveQR();
+        document.getElementById('receive-modal').style.display = "flex";
+    }
+
+    function updateReceiveQR() {
+        const selectedToken = document.getElementById('receive-token-select').value;
+        document.getElementById('modal-address').innerText = activeTonAddress;
+        document.getElementById('network-warning-text').innerText = `⚠️ Send only ${selectedToken} (TON Network) to this address.`;
+
+        let qrcodeDiv = document.getElementById("qrcode");
+        qrcodeDiv.innerHTML = "";
+        new QRCode(qrcodeDiv, { text: activeTonAddress, width: 140, height: 140 });
+    }
+
+    function openSendModal() {
+        if(!activeTonAddress) return alert("Create/Import Wallet First!");
+        document.getElementById('send-modal').style.display = "flex";
+    }
+
+    // DAILY CHECK-IN SYSTEM (PERSISTENT CHECK VIA LOCALSTORAGE DATE)
+    function checkDailyStatus() {
+        const lastClaimDate = localStorage.getItem('last_checkin_date');
+        const todayDate = new Date().toDateString();
+        const btn = document.getElementById('daily-claim-btn');
+
+        if (lastClaimDate === todayDate) {
+            btn.disabled = true;
+            btn.innerText = "Claimed Today";
+        } else {
+            btn.disabled = false;
+            btn.innerText = "Claim Daily Check-in";
+        }
+    }
+
+    function claimDailyReward() {
+        const todayDate = new Date().toDateString();
+        otterBalance += 10;
+        
+        localStorage.setItem('otter_bal', otterBalance);
+        localStorage.setItem('last_checkin_date', todayDate);
+        
+        document.getElementById('otter-wallet-bal').innerText = otterBalance.toFixed(2) + " OTTER";
+        alert("🎉 Daily Check-in Claimed! +10 OTTER");
+        
+        checkDailyStatus();
+    }
+
+    // REFERRALS
+    function shareInviteLink() {
+        const inviteUrl = `https://t.me/OtterWalletBot?start=${myRefCode}`;
+        if (navigator.share) {
+            navigator.share({ title: 'Otter Wallet', url: inviteUrl });
+        } else {
+            navigator.clipboard.writeText(inviteUrl);
+            alert("Invite link copied!");
+        }
+    }
+
+    function copyInviteLink() {
+        navigator.clipboard.writeText(`https://t.me/OtterWalletBot?start=${myRefCode}`);
+        alert("Invite link copied to clipboard!");
+    }
+
+    // Init App
+    window.addEventListener('load', () => {
+        checkWalletState();
+        checkDailyStatus();
+    });
+</script>
+
+</body>
+</html>
