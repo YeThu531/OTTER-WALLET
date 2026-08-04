@@ -13,9 +13,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     
-    <!-- TON Web3 SDKs & Mnemonic & QR Code -->
+    <!-- TON Web3 SDKs & QR Code -->
     <script src="https://unpkg.com/tonweb@0.0.60/dist/tonweb.js"></script>
-    <script src="https://unpkg.com/tonweb-mnemonic@1.0.1/dist/tonweb-mnemonic.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <script>
@@ -110,12 +109,12 @@
             border-radius: 10px; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
         }
 
-        /* Action Buttons */
-        .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        /* Action Buttons (3 Columns for Receive, Send, Swap) */
+        .action-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
         .btn-action {
             background: var(--card-bg); border: 1px solid var(--card-border);
-            color: #fff; border-radius: 12px; padding: 14px;
-            font-size: 14px; font-weight: 600; cursor: pointer; text-align: center;
+            color: #fff; border-radius: 12px; padding: 12px 8px;
+            font-size: 13px; font-weight: 600; cursor: pointer; text-align: center;
         }
         .btn-action.highlight { background: var(--accent-green); color: #000; border: none; }
         .btn-full { width: 100%; margin-top: 10px; }
@@ -145,6 +144,16 @@
             font-weight: bold; font-size: 18px; color: #fff;
         }
 
+        /* Daily Check-In Grid */
+        .checkin-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 15px 0;
+        }
+        .checkin-card {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 10px; padding: 12px 6px; text-align: center; font-size: 12px;
+        }
+        .checkin-card.active { border-color: var(--accent-green); background: rgba(34,197,94,0.1); }
+
         /* Bottom Nav */
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%; max-width: 480px;
@@ -167,17 +176,8 @@
 
 <div class="app-container">
 
-    <!-- HOME TAB -->
-    <div id="home-page" class="page active">
-        <h3>🏠 Otter Mining App</h3>
-        <div style="background:var(--card-bg); padding:20px; border-radius:14px; text-align:center; border:1px solid var(--card-border);">
-            <h2><span id="mining-bal">0.0000</span> OTTER</h2>
-            <p style="color:var(--text-sub); font-size:12px;">Auto-Mining Active...</p>
-        </div>
-    </div>
-
-    <!-- WALLET TAB (MULTI-TOKEN SUPPORT) -->
-    <div id="wallet-page" class="page">
+    <!-- WALLET TAB (MAIN LANDING PAGE) -->
+    <div id="wallet-page" class="page active">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <span style="background:rgba(34,197,94,0.15); color:var(--accent-green); padding:6px 12px; border-radius:20px; font-size:12px;" id="wallet-status">🔴 Unconnected</span>
             <i class="fa-solid fa-gear" style="cursor:pointer;" onclick="document.getElementById('backup-modal').style.display='flex'"></i>
@@ -188,9 +188,11 @@
             <p style="color:var(--text-sub); font-size:12px;" id="live-price-status">Syncing Exchange Prices...</p>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px;">
+        <!-- ACTION BUTTONS (RECEIVE, SEND, SWAP) -->
+        <div class="action-row">
             <button class="btn-action" onclick="openReceiveModal()"><i class="fa-solid fa-arrow-down"></i> Receive</button>
             <button class="btn-action" onclick="openSendModal()"><i class="fa-solid fa-paper-plane"></i> Send</button>
+            <button class="btn-action" onclick="openSwapModal()"><i class="fa-solid fa-arrows-rotate"></i> Swap</button>
         </div>
 
         <div id="setup-banner" style="background:#131d2a; padding:15px; border-radius:12px; margin-top:15px; border:1px solid #2563eb;">
@@ -227,33 +229,32 @@
                 <div style="text-align:right;"><b id="usdt-bal">0.00 USDT</b><br><span style="font-size:12px; color:var(--text-sub);" id="usdt-usd">$0.00</span></div>
             </div>
 
-            <!-- NOTCOIN -->
-            <div class="token-item">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <div class="token-icon" style="background:#f1c40f; color:#000;"><b>NOT</b></div>
-                    <div><b>Notcoin</b><br><span style="font-size:12px; color:var(--text-sub);">NOT (Binance/OKX)</span></div>
-                </div>
-                <div style="text-align:right;"><b id="not-bal">0.00 NOT</b><br><span style="font-size:12px; color:var(--text-sub);" id="not-usd">$0.00</span></div>
-            </div>
-
-            <!-- DOGS TOKEN -->
-            <div class="token-item">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <div class="token-icon" style="background:#34495e;">🐶</div>
-                    <div><b>Dogs Token</b><br><span style="font-size:12px; color:var(--text-sub);">DOGS (Listed)</span></div>
-                </div>
-                <div style="text-align:right;"><b id="dogs-bal">0.00 DOGS</b><br><span style="font-size:12px; color:var(--text-sub);" id="dogs-usd">$0.00</span></div>
-            </div>
-
             <!-- OTTER COIN -->
             <div class="token-item">
                 <div style="display:flex; align-items:center; gap:12px;">
                     <div class="token-icon" style="background:linear-gradient(135deg, #f59e0b, #d97706);">🦦</div>
                     <div><b>Otter Coin</b><br><span style="font-size:12px; color:var(--text-sub);">OTTER (Native Token)</span></div>
                 </div>
-                <div style="text-align:right;"><b id="otter-wallet-bal">0.00 OTTER</b><br><span style="font-size:12px; color:var(--accent-gold);">$0.00 (Pre-Market)</span></div>
+                <div style="text-align:right;"><b id="otter-wallet-bal">0.00 OTTER</b><br><span style="font-size:12px; color:var(--accent-gold);">$0.00 (Rewards)</span></div>
             </div>
         </div>
+    </div>
+
+    <!-- DAILY CHECK-IN PAGE -->
+    <div id="checkin-page" class="page">
+        <h3>📅 Daily Check-in</h3>
+        <p style="color:var(--text-sub); font-size:12px;">Check-in daily to claim OTTER reward tokens!</p>
+        
+        <div class="checkin-grid">
+            <div class="checkin-card active">Day 1<br><b>+10 🦦</b></div>
+            <div class="checkin-card">Day 2<br><b>+20 🦦</b></div>
+            <div class="checkin-card">Day 3<br><b>+30 🦦</b></div>
+            <div class="checkin-card">Day 4<br><b>+40 🦦</b></div>
+            <div class="checkin-card">Day 5<br><b>+50 🦦</b></div>
+            <div class="checkin-card">Day 6<br><b>+60 🦦</b></div>
+            <div class="checkin-card">Day 7<br><b>+100 🦦</b></div>
+        </div>
+        <button class="btn-primary" id="daily-claim-btn" onclick="claimDailyReward()">Claim Daily Check-in</button>
     </div>
 
     <!-- HISTORY TAB -->
@@ -262,33 +263,16 @@
         <p style="color:var(--text-sub); font-size:13px;">No recent transactions.</p>
     </div>
 
-    <!-- SWAP TAB -->
-    <div id="swap-page" class="page">
-        <h3>🔄 Multi-Asset DEX Swap</h3>
-        <div style="background:var(--card-bg); padding:16px; border-radius:12px; border:1px solid var(--card-border);">
-            <label style="font-size:12px;">Pay Asset:</label>
-            <select id="swap-from" style="width:100%; padding:10px; margin:8px 0; background:#050505; color:#fff; border:1px solid #2d3748; border-radius:8px;">
-                <option value="TON">TON (Toncoin)</option>
-                <option value="USDT">USDT (Tether)</option>
-                <option value="NOT">NOT (Notcoin)</option>
-                <option value="OTTER">OTTER (Otter Coin)</option>
-            </select>
-            <input type="number" placeholder="Amount" style="width:100%; padding:10px; margin:8px 0; background:#050505; border:1px solid #2d3748; color:#fff; border-radius:8px; box-sizing:border-box;">
-            <button class="btn-primary" onclick="alert('DEX Multi-Chain Swap Submitted!')">Swap Tokens</button>
-        </div>
-    </div>
-
     <!-- REWARDS TAB -->
     <div id="rewards-page" class="page">
-        <h3>🎁 Rewards</h3>
+        <h3>🎁 Tasks & Quests</h3>
         <div id="tasks-list"><p style="color:var(--text-sub); font-size:12px;">Loading tasks from Firebase...</p></div>
     </div>
 
     <!-- REFERRALS TAB -->
     <div id="referrals-page" class="page">
         <div class="top-nav-bar">
-            <span><i class="fa-solid fa-arrow-left" style="cursor:pointer;" onclick="switchPage('home-page', document.getElementById('home-nav'))"></i> Back</span>
-            <i class="fa-solid fa-ellipsis-vertical" style="cursor:pointer;"></i>
+            <span><i class="fa-solid fa-arrow-left" style="cursor:pointer;" onclick="switchPage('wallet-page', document.getElementById('wallet-nav'))"></i> Back</span>
         </div>
 
         <h2 style="text-align:center; margin: 10px 0 20px 0; font-size:26px;">Referrals</h2>
@@ -296,59 +280,44 @@
         <div class="giveaway-card">
             <div>
                 <h1 class="giveaway-title">$1,500</h1>
-                <div class="giveaway-sub">Giveaway results in 2 weeks</div>
+                <div class="giveaway-sub">Giveaway results soon</div>
                 <div class="giveaway-req">Invite 10+ Friends to be eligible ✨</div>
             </div>
-            <div style="font-size:55px; text-shadow:0 0 20px rgba(245,158,11,0.5);">🏆</div>
+            <div style="font-size:55px;">🏆</div>
         </div>
 
         <div class="status-row">
             <div>Invited Friends: <span id="friend-count">0</span></div>
-            <button class="btn-claim" id="claim-btn" onclick="alert('No OTTER available to collect right now.')">NO OTTER TO COLLECT</button>
         </div>
 
-        <div class="tier-list">
-            <div class="tier-row">
-                <div class="tier-box friends"><i class="fa-solid fa-user"></i> 1 Friend</div>
-                <div class="tier-box desc">Stake 3% of Each Friend's Claim + Otter Bonus</div>
-                <div class="tier-box otter-badge">🦦 <span style="color:#f59e0b;">+3</span></div>
-            </div>
-            <div class="tier-row">
-                <div class="tier-box friends"><i class="fa-solid fa-user-group"></i> 10 Friends</div>
-                <div class="tier-box desc">Stake 5% of Each Friend's Claim + Otter Bonus + <span style="color:var(--accent-gold);">$1.5K Giveaway</span></div>
-                <div class="tier-box otter-badge">🦦 <span style="color:#f59e0b;">+15</span></div>
-            </div>
-            <div class="tier-row">
-                <div class="tier-box friends"><i class="fa-solid fa-users"></i> 20 Friends</div>
-                <div class="tier-box desc">Stake 7% of Each Friend's Claim + Otter Bonus + <span style="color:var(--accent-gold);">$1.5K Giveaway</span></div>
-                <div class="tier-box otter-badge">🦦 <span style="color:#f59e0b;">+30</span></div>
-            </div>
-            <div class="tier-row">
-                <div class="tier-box friends"><i class="fa-solid fa-users-gear"></i> 100 Friends</div>
-                <div class="tier-box desc">Stake 10% of Each Friend's Claim + Otter Bonus + <span style="color:var(--accent-gold);">$1.5K Giveaway</span></div>
-                <div class="tier-box otter-badge">🦦 <span style="color:#f59e0b;">+150</span></div>
-            </div>
-        </div>
-
-        <div class="action-row">
+        <div class="action-row" style="grid-template-columns: 1fr 1fr;">
             <button class="btn-action highlight" onclick="shareInviteLink()">Share</button>
             <button class="btn-action" onclick="copyInviteLink()">Copy invite link</button>
         </div>
-        <button class="btn-action btn-full" onclick="copyReferralCode()">Copy referral code</button>
     </div>
 
 </div>
 
-<!-- RECEIVE MODAL WITH ASSET SELECTION -->
+<!-- SWAP MODAL -->
+<div id="swap-modal" class="modal">
+    <div class="modal-body">
+        <h3>🔄 Swap Tokens</h3>
+        <label style="font-size:12px;">Pay Asset:</label>
+        <select id="swap-from" style="width:100%; padding:10px; margin:8px 0; background:#050505; color:#fff; border:1px solid #2d3748; border-radius:8px;">
+            <option value="TON">TON (Toncoin)</option>
+            <option value="USDT">USDT (Tether)</option>
+            <option value="OTTER">OTTER (Otter Coin)</option>
+        </select>
+        <input type="number" placeholder="Amount" style="width:100%; padding:10px; margin:8px 0; background:#050505; border:1px solid #2d3748; color:#fff; border-radius:8px; box-sizing:border-box;">
+        <button class="btn-primary" onclick="alert('DEX Multi-Chain Swap Submitted!'); closeModal('swap-modal');">Swap Tokens</button>
+        <button class="btn-primary" style="background:#374151; color:#fff;" onclick="closeModal('swap-modal')">Cancel</button>
+    </div>
+</div>
+
+<!-- RECEIVE MODAL -->
 <div id="receive-modal" class="modal">
     <div class="modal-body" style="text-align:center;">
         <h3>Receive Crypto</h3>
-        <select id="receive-asset-select" onchange="updateReceiveQR()" style="width:100%; padding:8px; margin-bottom:10px; background:#050505; color:#fff; border:1px solid #374151; border-radius:8px;">
-            <option value="TON">TON (The Open Network Mainnet)</option>
-            <option value="USDT">USDT (Tether USD - TON / TRC20)</option>
-            <option value="NOT">NOT (Notcoin)</option>
-            <option value="DOGS">DOGS (Dogs Token)</option>
-        </select>
         <div id="qrcode" style="display:flex; justify-content:center; margin:15px 0;"></div>
         <div style="background:#050505; padding:10px; border-radius:8px; font-size:11px; font-family:monospace; word-break:break-all; color:var(--accent-green);" id="modal-address">Generating...</div>
         <button class="btn-primary" onclick="navigator.clipboard.writeText(activeTonAddress); alert('Address Copied!')">📋 Copy Address</button>
@@ -356,25 +325,19 @@
     </div>
 </div>
 
-<!-- SEND MODAL WITH MULTI-ASSET SELECTION -->
+<!-- SEND MODAL -->
 <div id="send-modal" class="modal">
     <div class="modal-body">
-        <h3>Send Multi-Asset</h3>
-        <select id="send-asset-select" style="width:100%; padding:10px; margin:8px 0; background:#050505; color:#fff; border:1px solid #374151; border-radius:8px;">
-            <option value="TON">TON (Toncoin)</option>
-            <option value="USDT">USDT (Tether)</option>
-            <option value="NOT">NOT (Notcoin)</option>
-            <option value="DOGS">DOGS (Dogs Token)</option>
-        </select>
+        <h3>Send Crypto</h3>
         <input type="text" id="send-to" placeholder="Recipient Wallet Address" style="width:100%; padding:10px; margin:8px 0; background:#050505; border:1px solid #374151; color:#fff; border-radius:8px; box-sizing:border-box;">
         <input type="number" id="send-amount" placeholder="Amount" style="width:100%; padding:10px; margin:8px 0; background:#050505; border:1px solid #374151; color:#fff; border-radius:8px; box-sizing:border-box;">
-        <button class="btn-primary" onclick="alert('Transaction Broadcasted to Blockchain Network!'); closeModal('send-modal');">Send Asset</button>
+        <button class="btn-primary" onclick="alert('Transaction Broadcasted!'); closeModal('send-modal');">Send Asset</button>
         <button class="btn-primary" style="background:#374151; color:#fff;" onclick="closeModal('send-modal')">Cancel</button>
     </div>
 </div>
 
 <!-- BACKUP MODAL -->
-    <div id="backup-modal" class="modal">
+<div id="backup-modal" class="modal">
     <div class="modal-body">
         <h3>Wallet Settings</h3>
         <div style="background:#1f2937; padding:12px; border-radius:10px; margin-bottom:8px; cursor:pointer;" onclick="showSavedSeed()">
@@ -403,13 +366,12 @@
     </div>
 </div>
 
-<!-- BOTTOM NAV MENU -->
+<!-- BOTTOM NAV MENU (Home ဖြုတ်ပြီး Wallet ကို Main Landing ပြုလုပ်ထားသည်) -->
 <div class="bottom-nav">
-    <button class="nav-item active" id="home-nav" onclick="switchPage('home-page', this)"><i class="fa-solid fa-house"></i>Home</button>
-    <button class="nav-item" id="wallet-nav" onclick="switchPage('wallet-page', this)"><i class="fa-solid fa-wallet"></i>Wallet</button>
+    <button class="nav-item active" id="wallet-nav" onclick="switchPage('wallet-page', this)"><i class="fa-solid fa-wallet"></i>Wallet</button>
+    <button class="nav-item" onclick="switchPage('checkin-page', this)"><i class="fa-solid fa-calendar-check"></i>Daily Check-in</button>
+    <button class="nav-item" onclick="switchPage('rewards-page', this)"><i class="fa-solid fa-list-check"></i>Tasks</button>
     <button class="nav-item" onclick="switchPage('history-page', this)"><i class="fa-solid fa-clock-rotate-left"></i>History</button>
-    <button class="nav-item" onclick="switchPage('swap-page', this)"><i class="fa-solid fa-arrows-rotate"></i>Swap</button>
-    <button class="nav-item" onclick="switchPage('rewards-page', this)"><i class="fa-solid fa-gift"></i>Rewards</button>
     <button class="nav-item" id="ref-nav" onclick="switchPage('referrals-page', this)"><i class="fa-solid fa-user-group"></i>Referrals</button>
 </div>
 
@@ -417,6 +379,7 @@
     let activeTonAddress = "";
     let currentSeed = localStorage.getItem('user_seed') || "";
     let myRefCode = "REF-" + Math.floor(100000 + Math.random() * 900000);
+    let otterBalance = parseFloat(localStorage.getItem('otter_bal') || '0');
 
     function switchPage(pageId, btn) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -426,215 +389,7 @@
     }
 
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function openSwapModal() { document.getElementById('swap-modal').style.display = 'flex'; }
 
     // REAL COINGECKO MULTI-TOKEN EXCHANGE PRICE API
-    async function loadExchangePrices() {
-        try {
-            document.getElementById('live-price-status').innerText = "Syncing Exchange Rates...";
-            const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=the-open-network,tether,notcoin,dogs&vs_currencies=usd");
-            const prices = await res.json();
-
-            const tonP = prices['the-open-network']?.usd || 5.0;
-            const usdtP = prices['tether']?.usd || 1.0;
-            const notP = prices['notcoin']?.usd || 0.007;
-            const dogsP = prices['dogs']?.usd || 0.0006;
-
-            // Update UI Tokens USD Value
-            document.getElementById('ton-usd').innerText = `$${tonP.toFixed(2)}`;
-            document.getElementById('usdt-usd').innerText = `$${usdtP.toFixed(2)}`;
-            document.getElementById('not-usd').innerText = `$${notP.toFixed(4)}`;
-            document.getElementById('dogs-usd').innerText = `$${dogsP.toFixed(5)}`;
-
-            document.getElementById('live-price-status').innerText = "🟢 Exchange Live Rates Connected";
-        } catch (e) {
-            console.log("Price fetch error:", e);
-            document.getElementById('live-price-status').innerText = "Rates updated";
-        }
-    }
-
-    // Helper to fetch TON Mnemonic object safely
-    function getTonMnemonic() {
-        return window.TonWebMnemonic || window.tonMnemonic || (window.TonWeb && TonWeb.mnemonic);
-    }
-
-    // REAL TON MAINNET ADDRESS GENERATION VIA TONWEB-MNEMONIC
-    async function initWalletFromSeed(seed) {
-        if(!seed) return;
-        try {
-            const mnemonicArray = seed.trim().toLowerCase().split(/\s+/);
-            const mnemonic = getTonMnemonic();
-
-            if (!mnemonic) {
-                alert("Mnemonic library not ready! Check network/VPN.");
-                return;
-            }
-
-            const keyPair = await mnemonic.mnemonicToKeyPair(mnemonicArray);
-            
-            const WalletClass = tonweb.wallet.all['v4R2'];
-            const wallet = new WalletClass(tonweb.provider, { publicKey: keyPair.publicKey });
-            
-            const addressObj = await wallet.getAddress();
-            activeTonAddress = addressObj.toString(true, true, true);
-
-            const statusElem = document.getElementById('wallet-status');
-            statusElem.innerText = "🟢 " + activeTonAddress.substring(0, 4) + "..." + activeTonAddress.substring(activeTonAddress.length - 4);
-            statusElem.style.background = "rgba(34,197,94,0.15)";
-            statusElem.style.color = "#22c55e";
-
-            document.getElementById('setup-banner').style.display = "none";
-
-            try {
-                const balanceNano = await tonweb.getBalance(activeTonAddress);
-                const tonBal = (balanceNano / 1e9).toFixed(3);
-                document.getElementById('ton-bal').innerText = `${tonBal} TON`;
-            } catch(e) {
-                console.log("Balance fetch error:", e);
-            }
-
-            loadExchangePrices();
-        } catch (err) {
-            console.error("Mainnet Derivation Error:", err);
-            alert("Invalid Seed Phrase!");
-        }
-    }
-
-    function checkWalletState() {
-        if (currentSeed && currentSeed.includes("alpha")) {
-            localStorage.removeItem('user_seed');
-            currentSeed = "";
-        }
-
-        if(currentSeed) {
-            initWalletFromSeed(currentSeed);
-        } else {
-            document.getElementById('wallet-status').innerText = "🔴 Unconnected";
-            document.getElementById('setup-banner').style.display = "block";
-        }
-    }
-
-    async function createNewWallet() {
-        try {
-            const mnemonic = getTonMnemonic();
-
-            if (!mnemonic) {
-                alert("Library failed to load! Please check your network/VPN connection.");
-                return;
-            }
-
-            const words = await mnemonic.generateMnemonic();
-            currentSeed = words.join(" ");
-            document.getElementById('seed-words-box').innerText = currentSeed;
-            document.getElementById('seed-modal').style.display = "flex";
-        } catch (e) {
-            console.error("Mnemonic Error:", e);
-            alert("Failed to generate seed phrase: " + e.message);
-        }
-    }
-
-    function confirmSeedSaved() {
-        localStorage.setItem('user_seed', currentSeed);
-        closeModal('seed-modal');
-        checkWalletState();
-    }
-
-    function showSavedSeed() {
-        closeModal('backup-modal');
-        document.getElementById('seed-words-box').innerText = currentSeed || "No Seed Available";
-        document.getElementById('seed-modal').style.display = "flex";
-    }
-
-    function openImportModal() { document.getElementById('import-modal').style.display = "flex"; }
-
-    function processImport() {
-        const val = document.getElementById('import-input').value.trim();
-        if(val.split(/\s+/).length < 12) return alert('Enter valid 12 words!');
-        currentSeed = val;
-        localStorage.setItem('user_seed', currentSeed);
-        closeModal('import-modal');
-        checkWalletState();
-    }
-
-    function openReceiveModal() {
-        if(!activeTonAddress) return alert("Create/Import Wallet First!");
-        updateReceiveQR();
-        document.getElementById('receive-modal').style.display = "flex";
-    }
-
-    function updateReceiveQR() {
-        document.getElementById('modal-address').innerText = activeTonAddress;
-        let qrcodeDiv = document.getElementById("qrcode");
-        qrcodeDiv.innerHTML = "";
-        new QRCode(qrcodeDiv, { text: activeTonAddress, width: 140, height: 140 });
-    }
-
-    function openSendModal() {
-        if(!activeTonAddress) return alert("Create/Import Wallet First!");
-        document.getElementById('send-modal').style.display = "flex";
-    }
-
-    // REFERRALS
-    function shareInviteLink() {
-        const inviteUrl = `https://t.me/OtterWalletBot?start=${myRefCode}`;
-        if (navigator.share) {
-            navigator.share({ title: 'Otter Wallet', url: inviteUrl });
-        } else {
-            navigator.clipboard.writeText(inviteUrl);
-            alert("Invite link copied!");
-        }
-    }
-
-    function copyInviteLink() {
-        navigator.clipboard.writeText(`https://t.me/OtterWalletBot?start=${myRefCode}`);
-        alert("Invite link copied to clipboard!");
-    }
-
-    function copyReferralCode() {
-        navigator.clipboard.writeText(myRefCode);
-        alert(`Referral Code: ${myRefCode} copied!`);
-    }
-
-    // FIREBASE TASKS LOAD
-    function loadTasks() {
-        db.collection("tasks").get().then((snapshot) => {
-            let container = document.getElementById("tasks-list");
-            if (snapshot.empty) {
-                container.innerHTML = "<p style='color:var(--text-sub); font-size:12px;'>No tasks available.</p>";
-                return;
-            }
-            container.innerHTML = "";
-            snapshot.forEach((doc) => {
-                let task = doc.data();
-                container.innerHTML += `
-                    <div style="background:var(--card-bg); padding:12px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <b>${task.title || 'Task'}</b><br>
-                            <span style="font-size:12px; color:var(--accent-green);">+${task.reward || 50} OTTER</span>
-                        </div>
-                        <button class="btn-primary" style="width:auto; padding:6px 12px; font-size:12px;" onclick="window.open('${task.link || '#'}')">Start</button>
-                    </div>
-                `;
-            });
-        }).catch(err => {
-            console.log("Firebase task load error:", err);
-        });
-    }
-
-    // Init App
-    window.addEventListener('load', () => {
-        checkWalletState();
-        loadTasks();
-    });
-
-    // Mining Balance Counter & Sync
-    let mBal = parseFloat(localStorage.getItem('m_bal') || '0');
-    setInterval(() => {
-        mBal += 0.0001;
-        document.getElementById('mining-bal').innerText = mBal.toFixed(4);
-        document.getElementById('otter-wallet-bal').innerText = mBal.toFixed(4) + " OTTER";
-        localStorage.setItem('m_bal', mBal);
-    }, 3000);
-</script>
-
-</body>
-</html>
+    
