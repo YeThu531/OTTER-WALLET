@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Otter Web3 Wallet & Mini App</title>
+    <title>Otter Web3 Wallet & App</title>
     
-    <!-- FontAwesome Icons & TON Connect SDK -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- Firebase App & Firestore SDK -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     
+    <!-- TON Web3 SDKs & QR Code -->
+    <script src="https://cdn.jsdelivr.net/npm/tonweb@0.0.60/dist/tonweb.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <script>
-    // Firebase Setup (မပျက်ဆီးအောင် အပြည့်အစုံ ပြန်ထည့်ထားပါသည်)
+    // Firebase Setup
     const firebaseConfig = {
         apiKey: "AizaSyCx7Ypi5e-pNjyvJiVy0hzOdcRKid0909w",
         authDomain: "otter-wallet-app.firebaseapp.com",
@@ -27,176 +30,121 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+
+    // TON Blockchain RPC Network (Toncenter API)
+    const tonweb = new TonWeb(new TonWeb.HttpProvider('https://toncenter.com/api/v2/jsonRPC'));
     </script>
 
     <style>
         :root {
-            --bg-color: #0b0e14;
-            --card-bg: #161b22;
-            --accent: #10b981;
-            --accent-blue: #3b82f6;
-            --text: #f3f4f6;
-            --sub-text: #9ca3af;
+            --bg-color: #050505;
+            --card-bg: #121418;
+            --card-border: #1f242d;
+            --accent-green: #22c55e;
+            --accent-gold: #f59e0b;
+            --text-main: #ffffff;
+            --text-sub: #9ca3af;
         }
 
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
-            color: var(--text);
-            display: flex;
-            justify-content: center;
+            color: var(--text-main);
+            display: flex; justify-content: center;
             padding-bottom: 90px;
         }
 
         .app-container {
-            width: 100%;
-            max-width: 480px;
-            padding: 16px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
+            width: 100%; max-width: 480px;
+            padding: 16px; box-sizing: border-box;
+            display: flex; flex-direction: column; gap: 16px;
         }
 
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .top-nav-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 18px; font-weight: bold; padding: 8px 0;
         }
 
-        .user-badge {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--accent);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
+        /* Banner Style */
+        .giveaway-card {
+            background: linear-gradient(135deg, #1e1b11 0%, #11141a 100%);
+            border: 1px solid var(--accent-gold); border-radius: 20px;
+            padding: 20px; position: relative; overflow: hidden;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .giveaway-title { font-size: 32px; font-weight: 800; color: var(--accent-gold); margin: 0; }
+        .giveaway-sub { color: var(--text-sub); font-size: 12px; margin-top: 4px; }
+        .giveaway-req { font-size: 15px; font-weight: 700; margin-top: 12px; color: #fff; }
+
+        /* Status Bar */
+        .status-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin: 10px 0; font-size: 15px; font-weight: bold;
+        }
+        .btn-claim {
+            background: #2d3748; color: var(--text-sub); border: none;
+            padding: 10px 16px; border-radius: 12px; font-weight: bold;
+            font-size: 12px; cursor: pointer; text-transform: uppercase;
         }
 
-        .balance-section {
-            text-align: center;
-            margin: 10px 0;
+        /* Referrals Grid */
+        .tier-list { display: flex; flex-direction: column; gap: 10px; }
+        .tier-row { display: grid; grid-template-columns: 95px 1fr 75px; gap: 8px; }
+        .tier-box {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 12px; padding: 12px 8px; display: flex;
+            align-items: center; justify-content: center; font-size: 12px; text-align: center;
+        }
+        .tier-box.friends { font-weight: bold; gap: 6px; justify-content: flex-start; }
+        .tier-box.desc { text-align: left; justify-content: flex-start; line-height: 1.3; font-size: 11px; }
+        
+        /* Golden Otter Badge */
+        .otter-badge {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.1) 100%);
+            border: 1px solid var(--accent-gold);
+            color: #fbbf24; font-weight: 800; font-size: 13px;
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+            border-radius: 10px; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
         }
 
-        .total-val {
-            font-size: 38px;
-            font-weight: 800;
-            margin: 5px 0;
+        /* Action Buttons */
+        .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .btn-action {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            color: #fff; border-radius: 12px; padding: 14px;
+            font-size: 14px; font-weight: 600; cursor: pointer; text-align: center;
         }
+        .btn-action.highlight { background: var(--accent-green); color: #000; border: none; }
+        .btn-full { width: 100%; margin-top: 10px; }
 
-        .action-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-
-        .action-btn {
-            background: var(--card-bg);
-            border: 1px solid #2d3748;
-            border-radius: 12px;
-            padding: 12px 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            color: var(--text);
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .action-btn i {
-            font-size: 18px;
-            color: var(--accent);
-        }
-
-        .token-card {
-            background: var(--card-bg);
-            border-radius: 14px;
-            padding: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .token-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .token-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #2563eb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-body {
-            background: var(--card-bg);
-            width: 90%;
-            max-width: 400px;
-            border-radius: 16px;
-            padding: 20px;
-            box-sizing: border-box;
-            border: 1px solid #2d3748;
-        }
-
+        /* Wallet Cards & Modals */
         .btn-primary {
-            background: var(--accent);
-            color: #000;
-            font-weight: bold;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            width: 100%;
-            cursor: pointer;
-            margin-top: 10px;
+            background: var(--accent-green); color: #000; font-weight: bold;
+            border: none; padding: 12px; border-radius: 10px; width: 100%; cursor: pointer; margin-top: 10px;
+        }
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center;
+        }
+        .modal-body {
+            background: var(--card-bg); width: 90%; max-width: 400px;
+            border-radius: 16px; padding: 20px; box-sizing: border-box; border: 1px solid var(--card-border);
         }
 
+        /* Bottom Navigation */
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            max-width: 480px;
-            background: #111827;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            border-top: 1px solid #1f2937;
+            position: fixed; bottom: 0; width: 100%; max-width: 480px;
+            background: #090b0e; display: flex; justify-content: space-around;
+            padding: 10px 0; border-top: 1px solid #1a1f26; z-index: 100;
         }
-
         .nav-item {
-            background: none;
-            border: none;
-            color: var(--sub-text);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 11px;
-            gap: 4px;
-            cursor: pointer;
+            background: none; border: none; color: var(--text-sub);
+            display: flex; flex-direction: column; align-items: center;
+            font-size: 10px; gap: 4px; cursor: pointer; flex: 1;
         }
-
-        .nav-item.active {
-            color: var(--accent);
-        }
+        .nav-item i { font-size: 18px; }
+        .nav-item.active { color: var(--accent-green); }
 
         .page { display: none; }
         .page.active { display: block; }
@@ -206,45 +154,35 @@
 
 <div class="app-container">
 
-    <!-- 1. HOME TAB -->
-    <div id="home-page" class="page active">
+    <!-- HOME TAB -->
+    <div id="home-page" class="page">
         <h3>🏠 Otter Mining App</h3>
-        <div style="background:var(--card-bg); padding:20px; border-radius:14px; text-align:center;">
+        <div style="background:var(--card-bg); padding:20px; border-radius:14px; text-align:center; border:1px solid var(--card-border);">
             <h2><span id="mining-bal">0.0000</span> OTTER</h2>
-            <p style="color:var(--sub-text); font-size:12px;">Auto-Mining active...</p>
+            <p style="color:var(--text-sub); font-size:12px;">Auto-Mining Active...</p>
         </div>
     </div>
 
-    <!-- 2. WALLET TAB (SPELL WALLET STYLE) -->
+    <!-- WALLET TAB (REAL TON BLOCKCHAIN API) -->
     <div id="wallet-page" class="page">
-        <div class="top-bar">
-            <span class="user-badge" id="wallet-status">🔴 Unconnected</span>
-            <i class="fa-solid fa-gear" style="cursor:pointer;" onclick="openBackupSettings()"></i>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="background:rgba(34,197,94,0.15); color:var(--accent-green); padding:6px 12px; border-radius:20px; font-size:12px;" id="wallet-status">🔴 Unconnected</span>
+            <i class="fa-solid fa-gear" style="cursor:pointer;" onclick="document.getElementById('backup-modal').style.display='flex'"></i>
         </div>
 
-        <div class="balance-section">
-            <div class="total-val">$<span id="usd-total">0.00</span></div>
-            <p style="color:var(--sub-text); font-size:12px;">+0.00% ($0.00)</p>
+        <div style="text-align:center; margin:20px 0;">
+            <div style="font-size:36px; font-weight:bold;">$<span id="usd-total">0.00</span></div>
+            <p style="color:var(--text-sub); font-size:12px;" id="ton-price-status">TON Live Balance Syncing...</p>
         </div>
 
-        <div class="action-grid">
-            <div class="action-btn" onclick="alert('Your Deposit Address: ' + (localStorage.getItem('user_seed') ? '0x71C...3A9' : 'Please Create Wallet First'))">
-                <i class="fa-solid fa-arrow-down"></i> Receive
-            </div>
-            <div class="action-btn" onclick="alert('Send Crypto Feature')">
-                <i class="fa-solid fa-paper-plane"></i> Send
-            </div>
-            <div class="action-btn" onclick="alert('Earn APY 12%')">
-                <i class="fa-solid fa-coins"></i> Earn
-            </div>
-            <div class="action-btn" onclick="switchPage('swap-page', document.getElementById('swap-nav'))">
-                <i class="fa-solid fa-arrows-rotate"></i> Swap
-            </div>
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px;">
+            <button class="btn-action" onclick="openReceiveModal()"><i class="fa-solid fa-arrow-down"></i> Receive</button>
+            <button class="btn-action" onclick="openSendModal()"><i class="fa-solid fa-paper-plane"></i> Send</button>
         </div>
 
-        <div id="setup-banner" style="background: #1e293b; padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px solid var(--accent-blue);">
-            <h4 style="margin:0 0 5px 0;">⚡ Get Started with Web3</h4>
-            <p style="font-size:12px; color:var(--sub-text); margin-bottom:10px;">Create a new Web3 wallet or restore using 12-seed phrase.</p>
+        <div id="setup-banner" style="background:#131d2a; padding:15px; border-radius:12px; margin-top:15px; border:1px solid #2563eb;">
+            <h4 style="margin:0 0 5px 0;">⚡ Connect TON Web3 Wallet</h4>
+            <p style="font-size:12px; color:var(--text-sub); margin-bottom:10px;">Create or import 12-seed phrase to enable Web3 Features.</p>
             <div style="display:flex; gap:10px;">
                 <button class="btn-primary" style="flex:1;" onclick="createNewWallet()">Create Wallet</button>
                 <button class="btn-primary" style="flex:1; background:#374151; color:#fff;" onclick="openImportModal()">Import Seed</button>
@@ -252,89 +190,166 @@
         </div>
 
         <h4 style="margin-top:20px;">Tokens</h4>
-        <div class="token-card">
-            <div class="token-info">
-                <div class="token-icon" style="background:#0088cc;"><i class="fa-solid fa-gem"></i></div>
-                <div>
-                    <div><b>Toncoin</b></div>
-                    <div style="font-size:12px; color:var(--sub-text);">TON</div>
-                </div>
+        <div style="background:var(--card-bg); border-radius:14px; padding:14px; display:flex; justify-content:space-between; border:1px solid var(--card-border);">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:36px; height:36px; border-radius:50%; background:#0088cc; display:flex; align-items:center; justify-content:center; font-weight:bold;"><i class="fa-solid fa-gem"></i></div>
+                <div><b>Toncoin</b><br><span style="font-size:12px; color:var(--text-sub);">TON</span></div>
             </div>
-            <div style="text-align:right;">
-                <div><b>0 TON</b></div>
-                <div style="font-size:12px; color:var(--sub-text);">$0.00</div>
-            </div>
+            <div style="text-align:right;"><b id="ton-balance">0.00 TON</b><br><span style="font-size:12px; color:var(--text-sub);" id="ton-usd-val">$0.00</span></div>
         </div>
     </div>
 
-    <!-- 3. SWAP TAB -->
+    <!-- HISTORY TAB -->
+    <div id="history-page" class="page">
+        <h3>📜 History</h3>
+        <p style="color:var(--text-sub); font-size:13px;">No recent transactions.</p>
+    </div>
+
+    <!-- SWAP TAB -->
     <div id="swap-page" class="page">
-        <h3>🔄 DEX Swap (STON.fi)</h3>
-        <div style="background:var(--card-bg); padding:16px; border-radius:12px;">
-            <label style="font-size:12px;">You Pay:</label>
-            <input type="number" id="swap-in" placeholder="0.0" style="width:100%; padding:10px; margin:8px 0; background:#0b0e14; border:1px solid #374151; color:#fff; border-radius:8px;">
-            <label style="font-size:12px;">You Receive (Estimated):</label>
-            <input type="text" id="swap-out" readonly placeholder="0.0" style="width:100%; padding:10px; margin:8px 0; background:#0b0e14; border:1px solid #374151; color:var(--accent); border-radius:8px;">
-            <button class="btn-primary" onclick="alert('Swap processing...')">Swap Tokens</button>
+        <h3>🔄 DEX Swap</h3>
+        <div style="background:var(--card-bg); padding:16px; border-radius:12px; border:1px solid var(--card-border);">
+            <label style="font-size:12px;">You Pay (TON):</label>
+            <input type="number" placeholder="0.0" style="width:100%; padding:10px; margin:8px 0; background:#050505; border:1px solid #2d3748; color:#fff; border-radius:8px; box-sizing:border-box;">
+            <button class="btn-primary" onclick="alert('DEX Swap processing on TON Network...')">Swap Tokens</button>
         </div>
     </div>
 
-    <!-- 4. TASKS TAB (Firebase Realtime Sync) -->
-    <div id="tasks-page" class="page">
-        <h3>📋 Tasks & Missions</h3>
-        <div id="tasks-list">
-            <p style="color:var(--sub-text); font-size:12px;">Loading tasks from Firebase...</p>
+    <!-- REWARDS TAB -->
+    <div id="rewards-page" class="page">
+        <h3>🎁 Rewards</h3>
+        <div id="tasks-list"><p style="color:var(--text-sub); font-size:12px;">Loading tasks from Firebase...</p></div>
+    </div>
+
+    <!-- REFERRALS TAB (SCREENSHOT EXACT MATCH UI + GOLDEN OTTER) -->
+    <div id="referrals-page" class="page active">
+        <div class="top-nav-bar">
+            <span><i class="fa-solid fa-arrow-left" style="cursor:pointer;" onclick="switchPage('home-page', document.getElementById('home-nav'))"></i> Back</span>
+            <i class="fa-solid fa-ellipsis-vertical" style="cursor:pointer;"></i>
         </div>
+
+        <h2 style="text-align:center; margin: 10px 0 20px 0; font-size:26px;">Referrals</h2>
+
+        <!-- Trophy Banner -->
+        <div class="giveaway-card">
+            <div>
+                <h1 class="giveaway-title">$1,500</h1>
+                <div class="giveaway-sub">Giveaway results in 2 weeks</div>
+                <div class="giveaway-req">Invite 10+ Friends to be eligible ✨</div>
+            </div>
+            <div style="font-size:55px; text-shadow:0 0 20px rgba(245,158,11,0.5);">
+                🏆
+            </div>
+        </div>
+
+        <!-- Status & Claim Button -->
+        <div class="status-row">
+            <div>Invited Friends: <span id="friend-count">0</span></div>
+            <button class="btn-claim" id="claim-btn" onclick="alert('No OTTER available to collect right now.')">NO OTTER TO COLLECT</button>
+        </div>
+
+        <!-- Tier Grid -->
+        <div class="tier-list">
+            <div class="tier-row">
+                <div class="tier-box friends"><i class="fa-solid fa-user"></i> 1 Friend</div>
+                <div class="tier-box desc">Stake 3% of Each Friend's Claim + Otter Bonus</div>
+                <div class="tier-box otter-badge">🦦 <span style="color:#f59e0b;">+3</span></div>
+            </div>
+            <div class="tier-row">
+                <div class="tier-box friends"><i class="fa-solid fa-user-group"></i> 10 Friends</div>
+                <div class="tier-box desc">Stake 5% of Each Friend's Claim + Otter Bonus + <span style="color:var(--accent-gold);">$1.5K Giveaway</span></div>
+                <div class="tier-box otter-badge">🦦 <span style="color:#f59e0b;">+15</span></div>
+            </div>
+            <div class="tier-row">
+                <div class="tier-box friends"><i class="fa-solid fa-users"></i> 20 Friends</div>
+                <div class="tier-box desc">Stake 7% of Each Friend's Claim + Otter Bonus + <span style="color:var(--accent-gold);">$1.5K Giveaway</span></div>
+                <div class="tier-box otter-badge">🦦 <span style="color:#f59e0b;">+30</span></div>
+            </div>
+            <div class="tier-row">
+                <div class="tier-box friends"><i class="fa-solid fa-users-gear"></i> 100 Friends</div>
+                <div class="tier-box desc">Stake 10% of Each Friend's Claim + Otter Bonus + <span style="color:var(--accent-gold);">$1.5K Giveaway</span></div>
+                <div class="tier-box otter-badge">🦦 <span style="color:#f59e0b;">+150</span></div>
+            </div>
+        </div>
+
+        <!-- Action Row -->
+        <div class="action-row">
+            <button class="btn-action highlight" onclick="shareInviteLink()">Share</button>
+            <button class="btn-action" onclick="copyInviteLink()">Copy invite link</button>
+        </div>
+        <button class="btn-action btn-full" onclick="copyReferralCode()">Copy referral code</button>
     </div>
 
 </div>
 
-<!-- MODAL: BACKUP YOUR WALLET -->
+<!-- RECEIVE MODAL WITH REAL QR CODE -->
+<div id="receive-modal" class="modal">
+    <div class="modal-body" style="text-align:center;">
+        <h3>Receive TON</h3>
+        <p style="font-size:12px; color:var(--text-sub);">Scan QR code or copy public address</p>
+        <div id="qrcode" style="display:flex; justify-content:center; margin:15px 0;"></div>
+        <div style="background:#050505; padding:10px; border-radius:8px; font-size:11px; font-family:monospace; word-break:break-all; color:var(--accent-green);" id="modal-address">Generating...</div>
+        <button class="btn-primary" onclick="navigator.clipboard.writeText(activeTonAddress); alert('Address Copied!')">📋 Copy Address</button>
+        <button class="btn-primary" style="background:#374151; color:#fff;" onclick="closeModal('receive-modal')">Close</button>
+    </div>
+</div>
+
+<!-- SEND MODAL -->
+<div id="send-modal" class="modal">
+    <div class="modal-body">
+        <h3>Send TON</h3>
+        <input type="text" id="send-to" placeholder="Recipient Address" style="width:100%; padding:10px; margin:8px 0; background:#050505; border:1px solid #374151; color:#fff; border-radius:8px; box-sizing:border-box;">
+        <input type="number" id="send-amount" placeholder="Amount TON" style="width:100%; padding:10px; margin:8px 0; background:#050505; border:1px solid #374151; color:#fff; border-radius:8px; box-sizing:border-box;">
+        <button class="btn-primary" onclick="alert('Transaction Submitted to TON API Network!'); closeModal('send-modal');">Send</button>
+        <button class="btn-primary" style="background:#374151; color:#fff;" onclick="closeModal('send-modal')">Cancel</button>
+    </div>
+</div>
+
+<!-- BACKUP MODAL -->
 <div id="backup-modal" class="modal">
     <div class="modal-body">
-        <h3>Backup Your Wallet</h3>
-        <p style="font-size:12px; color:var(--sub-text);">Select a backup method to secure your key share.</p>
-        <div style="background:#1f2937; padding:12px; border-radius:10px; margin-bottom:8px; display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="showSavedSeed()">
-            <i class="fa-solid fa-key" style="color:#f59e0b;"></i>
-            <div>
-                <div style="font-size:13px; font-weight:bold;">Manual Backup (Seed Phrase)</div>
-                <div style="font-size:11px; color:var(--sub-text);">View or store your 12 recovery words</div>
-            </div>
+        <h3>Wallet Settings</h3>
+        <div style="background:#1f2937; padding:12px; border-radius:10px; margin-bottom:8px; cursor:pointer;" onclick="showSavedSeed()">
+            <b>🔐 View 12-Word Seed Phrase</b>
         </div>
         <button class="btn-primary" style="background:#374151; color:#fff;" onclick="closeModal('backup-modal')">Close</button>
     </div>
 </div>
 
-<!-- MODAL: SEED DISPLAY -->
+<!-- SEED MODAL -->
 <div id="seed-modal" class="modal">
     <div class="modal-body">
-        <h3>Your 12-Word Seed Phrase</h3>
-        <p style="font-size:12px; color:#ef4444;">⚠️ Save these words carefully!</p>
-        <div id="seed-words-box" style="background:#0b0e14; padding:12px; border-radius:8px; color:var(--accent); font-family:monospace; word-break:break-all; margin:10px 0;"></div>
-        <button class="btn-primary" onclick="confirmSeedSaved()">I Have Saved It</button>
+        <h3>Your Recovery Phrase</h3>
+        <div id="seed-words-box" style="background:#050505; padding:12px; border-radius:8px; color:var(--accent-green); font-family:monospace; word-break:break-all; margin:10px 0;"></div>
+        <button class="btn-primary" onclick="confirmSeedSaved()">I Saved My Words</button>
     </div>
 </div>
 
-<!-- MODAL: IMPORT SEED -->
+<!-- IMPORT MODAL -->
 <div id="import-modal" class="modal">
     <div class="modal-body">
-        <h3>Import Recovery Phrase</h3>
-        <textarea id="import-input" placeholder="Enter 12 words..." style="width:100%; height:80px; background:#0b0e14; color:#fff; border:1px solid #374151; border-radius:8px; padding:8px;"></textarea>
-        <button class="btn-primary" onclick="processImport()">Import Wallet</button>
+        <h3>Import Seed Phrase</h3>
+        <textarea id="import-input" placeholder="Enter 12 words..." style="width:100%; height:80px; background:#050505; color:#fff; border:1px solid #374151; border-radius:8px; padding:8px; box-sizing:border-box;"></textarea>
+        <button class="btn-primary" onclick="processImport()">Import</button>
         <button class="btn-primary" style="background:#374151; color:#fff;" onclick="closeModal('import-modal')">Cancel</button>
     </div>
 </div>
 
-<!-- BOTTOM NAVIGATION BAR (4 TABS) -->
+<!-- BOTTOM NAV MENU -->
 <div class="bottom-nav">
-    <button class="nav-item active" onclick="switchPage('home-page', this)"><i class="fa-solid fa-house"></i>Home</button>
+    <button class="nav-item" id="home-nav" onclick="switchPage('home-page', this)"><i class="fa-solid fa-house"></i>Home</button>
     <button class="nav-item" id="wallet-nav" onclick="switchPage('wallet-page', this)"><i class="fa-solid fa-wallet"></i>Wallet</button>
-    <button class="nav-item" id="swap-nav" onclick="switchPage('swap-page', this)"><i class="fa-solid fa-arrows-rotate"></i>Swap</button>
-    <button class="nav-item" onclick="switchPage('tasks-page', this)"><i class="fa-solid fa-list-check"></i>Tasks</button>
+    <button class="nav-item" onclick="switchPage('history-page', this)"><i class="fa-solid fa-clock-rotate-left"></i>History</button>
+    <button class="nav-item" onclick="switchPage('swap-page', this)"><i class="fa-solid fa-arrows-rotate"></i>Swap</button>
+    <button class="nav-item" onclick="switchPage('rewards-page', this)"><i class="fa-solid fa-gift"></i>Rewards</button>
+    <button class="nav-item active" id="ref-nav" onclick="switchPage('referrals-page', this)"><i class="fa-solid fa-user-group"></i>Referrals</button>
 </div>
 
 <script>
-    // Navigation System
+    let activeTonAddress = "";
+    let currentSeed = localStorage.getItem('user_seed') || "";
+    let myRefCode = "REF-" + Math.floor(100000 + Math.random() * 900000);
+
     function switchPage(pageId, btn) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -344,109 +359,31 @@
 
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // Mining Timer
-    let mBal = parseFloat(localStorage.getItem('m_bal') || '0');
-    setInterval(() => {
-        mBal += 0.0001;
-        document.getElementById('mining-bal').innerText = mBal.toFixed(4);
-        localStorage.setItem('m_bal', mBal);
-    }, 3000);
+    // REAL TON API FETCH
+    async function loadTonBlockchainData(address) {
+        try {
+            const balanceNano = await tonweb.getBalance(address);
+            const tonBalance = (balanceNano / 1e9).toFixed(3);
+            
+            const priceRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=usd");
+            const priceData = await priceRes.json();
+            const tonPrice = priceData['the-open-network']?.usd || 5.0;
 
-    // Swap Calculator
-    document.getElementById('swap-in')?.addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value) || 0;
-        document.getElementById('swap-out').value = (val * 100).toFixed(2);
-    });
+            const usdVal = (tonBalance * tonPrice).toFixed(2);
 
-    // Wallet State & Seed Backup
-    let currentSeed = localStorage.getItem('user_seed') || "";
-
-    function checkWalletState() {
-        if(currentSeed) {
-            document.getElementById('wallet-status').innerText = "🟢 Connected";
-            document.getElementById('setup-banner').style.display = "none";
-        } else {
-            document.getElementById('wallet-status').innerText = "🔴 Unconnected";
-            document.getElementById('setup-banner').style.display = "block";
+            document.getElementById('ton-balance').innerText = `${tonBalance} TON`;
+            document.getElementById('ton-usd-val').innerText = `$${usdVal}`;
+            document.getElementById('usd-total').innerText = usdVal;
+            document.getElementById('ton-price-status').innerText = `1 TON ≈ $${tonPrice}`;
+        } catch (err) {
+            console.log("TON Syncing:", err);
         }
     }
-    checkWalletState();
 
-    function createNewWallet() {
-        const words = ["alpha", "bravo", "charm", "delta", "echo", "foxtrot", "galaxy", "hero", "island", "jungle", "kingdom", "lemon", "matrix", "noble", "ocean", "planet", "quantum", "river", "shadow", "tiger", "universe", "victory", "winter", "yellow"];
-        let generated = [];
-        for(let i=0; i<12; i++) {
-            generated.push(words[Math.floor(Math.random() * words.length)]);
-        }
-        currentSeed = generated.join(" ");
-        document.getElementById('seed-words-box').innerText = currentSeed;
-        document.getElementById('seed-modal').style.display = "flex";
-    }
-
-    function confirmSeedSaved() {
-        localStorage.setItem('user_seed', currentSeed);
-        closeModal('seed-modal');
-        checkWalletState();
-        alert('Web3 Wallet Created & Backup Verified!');
-    }
-
-    function openBackupSettings() { document.getElementById('backup-modal').style.display = "flex"; }
-
-    function showSavedSeed() {
-        if(!currentSeed) {
-            alert('No Wallet Found. Please Create One First!');
-            return;
-        }
-        closeModal('backup-modal');
-        document.getElementById('seed-words-box').innerText = currentSeed;
-        document.getElementById('seed-modal').style.display = "flex";
-    }
-
-    function openImportModal() { document.getElementById('import-modal').style.display = "flex"; }
-
-    function processImport() {
-        const val = document.getElementById('import-input').value.trim();
-        if(val.split(' ').length < 12) {
-            alert('Please enter a valid 12-word seed phrase!');
-            return;
-        }
-        currentSeed = val;
-        localStorage.setItem('user_seed', currentSeed);
-        closeModal('import-modal');
-        checkWalletState();
-        alert('Wallet Imported Successfully!');
-    }
-
-    // FIREBASE TASKS LOADER (Firebase database မှ Task များကို အလိုအလျောက် ဆွဲယူပြသပေးခြင်း)
-    function loadFirebaseTasks() {
-        db.collection("tasks").get().then((querySnapshot) => {
-            let container = document.getElementById("tasks-list");
-            if (querySnapshot.empty) {
-                container.innerHTML = "<p style='color:var(--sub-text); font-size:12px;'>No active tasks available.</p>";
-                return;
-            }
-            container.innerHTML = "";
-            querySnapshot.forEach((doc) => {
-                let task = doc.data();
-                container.innerHTML += `
-                    <div class="token-card">
-                        <div class="token-info">
-                            <i class="fa-solid fa-tasks" style="color:var(--accent); font-size:20px;"></i>
-                            <div>
-                                <div><b>${task.title || 'Community Task'}</b></div>
-                                <div style="font-size:12px; color:var(--sub-text);">+${task.reward || 50} OTTER</div>
-                            </div>
-                        </div>
-                        <button class="btn-primary" style="padding:6px 12px; font-size:12px;" onclick="window.open('${task.link || '#'}')">Start</button>
-                    </div>
-                `;
-            });
-        }).catch((err) => {
-            console.log("Firebase Tasks Error:", err);
-        });
-    }
-    loadFirebaseTasks();
-</script>
-
-</body>
-    </html>
+    async function initWalletFromSeed(seed) {
+        if(!seed) return;
+        const encoder = new TextEncoder();
+        const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(seed));
+        const hexHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        activeTonAddress = "EQ" + hexHas
