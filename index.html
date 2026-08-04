@@ -380,4 +380,127 @@
         }
     }
 
-    
+    async function initWalletFromSeed(seed) {
+        if(!seed) return;
+        const encoder = new TextEncoder();
+        const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(seed));
+        const hexHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        activeTonAddress = "EQ" + hexHash.substring(0, 42);
+        document.getElementById('wallet-status').innerText = "🟢 " + activeTonAddress.substring(0, 6) + "..." + activeTonAddress.substring(38);
+        document.getElementById('setup-banner').style.display = "none";
+
+        loadTonBlockchainData(activeTonAddress);
+    }
+
+    function checkWalletState() {
+        if(currentSeed) {
+            initWalletFromSeed(currentSeed);
+        } else {
+            document.getElementById('wallet-status').innerText = "🔴 Unconnected";
+            document.getElementById('setup-banner').style.display = "block";
+        }
+    }
+    checkWalletState();
+
+    function createNewWallet() {
+        const words = ["alpha", "bravo", "charm", "delta", "echo", "foxtrot", "galaxy", "hero", "island", "jungle", "kingdom", "lemon"];
+        currentSeed = words.join(" ");
+        document.getElementById('seed-words-box').innerText = currentSeed;
+        document.getElementById('seed-modal').style.display = "flex";
+    }
+
+    function confirmSeedSaved() {
+        localStorage.setItem('user_seed', currentSeed);
+        closeModal('seed-modal');
+        checkWalletState();
+    }
+
+    function showSavedSeed() {
+        closeModal('backup-modal');
+        document.getElementById('seed-words-box').innerText = currentSeed || "No Seed Available";
+        document.getElementById('seed-modal').style.display = "flex";
+    }
+
+    function openImportModal() { document.getElementById('import-modal').style.display = "flex"; }
+
+    function processImport() {
+        const val = document.getElementById('import-input').value.trim();
+        if(val.split(' ').length < 12) return alert('Enter valid 12 words!');
+        currentSeed = val;
+        localStorage.setItem('user_seed', currentSeed);
+        closeModal('import-modal');
+        checkWalletState();
+    }
+
+    function openReceiveModal() {
+        if(!activeTonAddress) return alert("Create/Import Wallet First!");
+        document.getElementById('modal-address').innerText = activeTonAddress;
+        let qrcodeDiv = document.getElementById("qrcode");
+        qrcodeDiv.innerHTML = "";
+        new QRCode(qrcodeDiv, { text: activeTonAddress, width: 140, height: 140 });
+        document.getElementById('receive-modal').style.display = "flex";
+    }
+
+    function openSendModal() {
+        if(!activeTonAddress) return alert("Create/Import Wallet First!");
+        document.getElementById('send-modal').style.display = "flex";
+    }
+
+    // REFERRAL LINK ACTIONS
+    function shareInviteLink() {
+        const inviteUrl = `https://t.me/OtterWalletBot?start=${myRefCode}`;
+        if (navigator.share) {
+            navigator.share({ title: 'Otter Wallet', url: inviteUrl });
+        } else {
+            navigator.clipboard.writeText(inviteUrl);
+            alert("Invite link copied!");
+        }
+    }
+
+    function copyInviteLink() {
+        navigator.clipboard.writeText(`https://t.me/OtterWalletBot?start=${myRefCode}`);
+        alert("Invite link copied to clipboard!");
+    }
+
+    function copyReferralCode() {
+        navigator.clipboard.writeText(myRefCode);
+        alert(`Referral Code: ${myRefCode} copied!`);
+    }
+
+    // FIREBASE TASKS LOAD
+    function loadTasks() {
+        db.collection("tasks").get().then((snapshot) => {
+            let container = document.getElementById("tasks-list");
+            if (snapshot.empty) {
+                container.innerHTML = "<p style='color:var(--text-sub); font-size:12px;'>No tasks available.</p>";
+                return;
+            }
+            container.innerHTML = "";
+            snapshot.forEach((doc) => {
+                let task = doc.data();
+                container.innerHTML += `
+                    <div style="background:var(--card-bg); padding:12px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <b>${task.title || 'Task'}</b><br>
+                            <span style="font-size:12px; color:var(--accent-green);">+${task.reward || 50} OTTER</span>
+                        </div>
+                        <button class="btn-primary" style="width:auto; padding:6px 12px; font-size:12px;" onclick="window.open('${task.link || '#'}')">Start</button>
+                    </div>
+                `;
+            });
+        });
+    }
+    loadTasks();
+
+    // Auto-Mining Balance Counter
+    let mBal = parseFloat(localStorage.getItem('m_bal') || '0');
+    setInterval(() => {
+        mBal += 0.0001;
+        document.getElementById('mining-bal').innerText = mBal.toFixed(4);
+        localStorage.setItem('m_bal', mBal);
+    }, 3000);
+</script>
+
+</body>
+</html>
