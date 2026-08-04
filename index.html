@@ -271,12 +271,25 @@
     </div>
 </div>
 
-<!-- RECEIVE MODAL -->
+<!-- RECEIVE MODAL (CRYPTO SELECTION INCLUDED) -->
 <div id="receive-modal" class="modal">
     <div class="modal-body" style="text-align:center;">
         <h3>Receive Crypto</h3>
+        
+        <!-- Crypto Token Selection Dropdown -->
+        <label style="font-size:12px; color:var(--text-sub); display:block; text-align:left; margin-top:10px;">Select Asset to Receive:</label>
+        <select id="receive-token-select" onchange="updateReceiveQR()" style="width:100%; padding:10px; margin:6px 0 12px 0; background:#050505; color:#fff; border:1px solid var(--card-border); border-radius:8px;">
+            <option value="TON">TON - Toncoin (TON Mainnet)</option>
+            <option value="USDT">USDT - Tether (TON Jetton)</option>
+            <option value="GRAM">GRAM - Gram Coin (TON Jetton)</option>
+            <option value="OTTER">OTTER - Otter Native Token</option>
+        </select>
+
         <div id="qrcode" style="display:flex; justify-content:center; margin:15px 0;"></div>
         <div style="background:#050505; padding:10px; border-radius:8px; font-size:11px; font-family:monospace; word-break:break-all; color:var(--accent-green);" id="modal-address">Generating...</div>
+        
+        <p style="font-size:11px; color:var(--accent-gold); margin-top:8px;" id="network-warning-text">⚠️ Send only TON Network assets to this address.</p>
+
         <button class="btn-primary" onclick="navigator.clipboard.writeText(activeTonAddress); alert('Address Copied!')">📋 Copy Address</button>
         <button class="btn-primary" style="background:#374151; color:#fff;" onclick="closeModal('receive-modal')">Close</button>
     </div>
