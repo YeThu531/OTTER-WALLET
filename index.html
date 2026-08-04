@@ -458,7 +458,8 @@
     if(!seed) return;
     try {
         const mnemonicArray = seed.trim().toLowerCase().split(/\s+/);
-        const keyPair = await TonWeb.mnemonic.mnemonicToKeyPair(mnemonicArray);
+const mnemonic = window.TonWebMnemonic || (TonWeb && TonWeb.mnemonic);
+const keyPair = await mnemonic.mnemonicToKeyPair(mnemonicArray);
         
         const WalletClass = tonweb.wallet.all['v4R2'];
         const wallet = new WalletClass(tonweb.provider, { publicKey: keyPair.publicKey });
