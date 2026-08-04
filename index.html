@@ -740,7 +740,33 @@ function updateTgeCountdown() {
 }
 
 setInterval(updateTgeCountdown, 1000);
-
+// Buy with Telegram Stars Function
+async function buyWithStars(packId, starsAmount) {
+    const tg = window.Telegram?.WebApp;
+    if (!tg) {
+        alert("Telegram App အတွင်းမှသာ အသုံးပြုနိုင်ပါသည်။");
+        return;
+    }
+    const userId = tg.initDataUnsafe?.user?.id || 'guest';
+    
+    try {
+        const response = await fetch('https://YOUR-BACKEND-URL.com/api/create-stars-invoice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, packId, starsAmount })
+        });
+        const data = await response.json();
+        if (data.success && data.invoiceLink) {
+            tg.openInvoice(data.invoiceLink, (status) => {
+                if (status === 'paid') {
+                    tg.showAlert("🎉 ဝယ်ယူမှု အောင်မြင်ပါသည်။");
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Stars Payment Error:", err);
+    }
+}
 // Initialize Page
 document.addEventListener("DOMContentLoaded", function() {
   updateBalanceUI();
