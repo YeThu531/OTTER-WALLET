@@ -505,16 +505,18 @@
     }
     checkWalletState();
 
-    async function createNewWallet() {
+async function createNewWallet() {
     try {
-        const words = await TonWeb.mnemonic.generateMnemonic();
+        const mnemonic = window.TonWebMnemonic || (TonWeb && TonWeb.mnemonic);
+        const words = await mnemonic.generateMnemonic();
         currentSeed = words.join(" ");
         document.getElementById('seed-words-box').innerText = currentSeed;
         document.getElementById('seed-modal').style.display = "flex";
     } catch (e) {
+        console.error("Mnemonic Error:", e);
         alert("Failed to generate seed phrase!");
     }
-    }
+}
 
     function confirmSeedSaved() {
         localStorage.setItem('user_seed', currentSeed);
