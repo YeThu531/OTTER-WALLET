@@ -454,31 +454,40 @@
 
     // REAL TON MAINNET ADDRESS GENERATION VIA TONWEB-MNEMONIC
     async function initWalletFromSeed(seed) {
-        if(!seed) return;
+    if(!seed) return;
+    try {
+        const mnemonicArray = seed.trim().toLowerCase().split(/\s+/);
+        const keyPair = await TonWeb.mnemonic.mnemonicToKeyPair(mnemonicArray);
+        
+        const WalletClass = tonweb.wallet.all['v4R2'];
+        const wallet = new WalletClass(tonweb.provider, { publicKey: keyPair.publicKey });
+        
+        const addressObj = await wallet.getAddress();
+        activeTonAddress = addressObj.toString(true, true, true);
+
+        // UI Status ကို Connected ဖြစ်အောင် ပြောင်းခြင်း
+        const statusElem = document.getElementById('wallet-status');
+        statusElem.innerText = "🟢 " + activeTonAddress.substring(0, 4) + "..." + activeTonAddress.substring(activeTonAddress.length - 4);
+        statusElem.style.background = "rgba(34,197,94,0.15)";
+        statusElem.style.color = "#22c55e";
+
+        document.getElementById('setup-banner').style.display = "none";
+
+        // Sync Real TON Balance
         try {
-            const mnemonicArray = seed.trim().split(' ');
-            const keyPair = await TonWeb.mnemonic.mnemonicToKeyPair(mnemonicArray);
-            
-            const WalletClass = tonweb.wallet.all['v4R2'];
-            const wallet = new WalletClass(tonweb.provider, { publicKey: keyPair.publicKey });
-            
-            const addressObj = await wallet.getAddress();
-            activeTonAddress = addressObj.toString(true, true, true);
-
-            document.getElementById('wallet-status').innerText = "🟢 " + activeTonAddress.substring(0, 6) + "..." + activeTonAddress.substring(38);
-            document.getElementById('setup-banner').style.display = "none";
-
-            // Sync Real TON Balance
             const balanceNano = await tonweb.getBalance(activeTonAddress);
             const tonBal = (balanceNano / 1e9).toFixed(3);
             document.getElementById('ton-bal').innerText = `${tonBal} TON`;
-
-            loadExchangePrices();
-        } catch (err) {
-            console.error("Mainnet Derivation Error:", err);
+        } catch(e) {
+            console.log("Balance fetch error:", e);
         }
-    }
 
+        loadExchangePrices();
+    } catch (err) {
+        console.error("Mainnet Derivation Error:", err);
+        alert("Invalid Seed Phrase!");
+    }
+            }
     function checkWalletState() {
         if(currentSeed) {
             initWalletFromSeed(currentSeed);
