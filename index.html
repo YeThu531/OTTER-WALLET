@@ -610,7 +610,7 @@
 
     // REFERRALS
     function shareInviteLink() {
-        const inviteUrl = `https://t.me/OtterWalletBot?start=${myRefCode}`;
+        const inviteUrl = `https://t.me/otter_wallet_app_bot?start=${myRefCode}`;
         if (navigator.share) {
             navigator.share({ title: 'Otter Wallet', url: inviteUrl });
         } else {
@@ -620,7 +620,7 @@
     }
 
     function copyInviteLink() {
-        navigator.clipboard.writeText(`https://t.me/OtterWalletBot?start=${myRefCode}`);
+        navigator.clipboard.writeText(`https://t.me/otter_wallet_app_bot?start=${myRefCode}`);
         alert("Invite link copied to clipboard!");
     }
 
