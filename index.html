@@ -490,12 +490,18 @@
     }
             }
     function checkWalletState() {
-        if(currentSeed) {
-            initWalletFromSeed(currentSeed);
-        } else {
-            document.getElementById('wallet-status').innerText = "🔴 Unconnected";
-            document.getElementById('setup-banner').style.display = "block";
-        }
+    // Seed အဟောင်း "alpha..." ငြိနေရင် ဖျက်ပစ်ရန်
+    if (currentSeed && currentSeed.includes("alpha")) {
+        localStorage.removeItem('user_seed');
+        currentSeed = "";
+    }
+
+    if(currentSeed) {
+        initWalletFromSeed(currentSeed);
+    } else {
+        document.getElementById('wallet-status').innerText = "🔴 Unconnected";
+        document.getElementById('setup-banner').style.display = "block";
+    }
     }
     checkWalletState();
 
