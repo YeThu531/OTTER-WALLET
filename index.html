@@ -498,11 +498,15 @@
     }
     checkWalletState();
 
-    function createNewWallet() {
-        const words = ["alpha", "bravo", "charm", "delta", "echo", "foxtrot", "galaxy", "hero", "island", "jungle", "kingdom", "lemon"];
+    async function createNewWallet() {
+    try {
+        const words = await TonWeb.mnemonic.generateMnemonic();
         currentSeed = words.join(" ");
         document.getElementById('seed-words-box').innerText = currentSeed;
         document.getElementById('seed-modal').style.display = "flex";
+    } catch (e) {
+        alert("Failed to generate seed phrase!");
+    }
     }
 
     function confirmSeedSaved() {
