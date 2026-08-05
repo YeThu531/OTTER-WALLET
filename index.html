@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
+    <!-- TonConnect SDK for Real TON Wallet Connection -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -69,11 +72,13 @@
         }
         .giveaway-title { font-size: 32px; font-weight: 800; color: var(--accent-gold); margin: 0; }
         .giveaway-sub { color: var(--text-sub); font-size: 12px; margin-top: 4px; }
-        .giveaway-req { font-size: 15px; font-weight: 700; margin-top: 12px; color: #fff; }
+        .giveaway-req { font-size: 14px; font-weight: 700; margin-top: 12px; color: #fff; }
 
         .status-row {
             display: flex; justify-content: space-between; align-items: center;
-            margin: 10px 0; font-size: 15px; font-weight: bold;
+            margin: 10px 0; font-size: 14px; font-weight: bold;
+            background: var(--card-bg); padding: 12px; border-radius: 12px;
+            border: 1px solid var(--card-border);
         }
 
         .action-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
@@ -189,7 +194,6 @@
         </h4>
 
         <div id="token-list-container">
-            <!-- TON COIN DIRECT ICON -->
             <div class="token-item">
                 <div style="display:flex; align-items:center; gap:12px;">
                     <img src="https://assets.coingecko.com/coins/images/17980/large/ton_symbol.png" class="token-icon-img" alt="TON">
@@ -198,7 +202,6 @@
                 <div style="text-align:right;"><b id="ton-bal">0.00 TON</b><br><span style="font-size:12px; color:var(--text-sub);" id="ton-usd">$0.00</span></div>
             </div>
 
-            <!-- USDT DIRECT ICON -->
             <div class="token-item">
                 <div style="display:flex; align-items:center; gap:12px;">
                     <img src="https://assets.coingecko.com/coins/images/325/large/Tether.png" class="token-icon-img" alt="USDT">
@@ -207,7 +210,6 @@
                 <div style="text-align:right;"><b id="usdt-bal">0.00 USDT</b><br><span style="font-size:12px; color:var(--text-sub);" id="usdt-usd">$0.00</span></div>
             </div>
 
-            <!-- GRAM COIN DIRECT ICON -->
             <div class="token-item">
                 <div style="display:flex; align-items:center; gap:12px;">
                     <img src="https://assets.coingecko.com/coins/images/35690/large/gram.png" class="token-icon-img" alt="GRAM" onerror="this.src='https://assets.coingecko.com/coins/images/17980/large/ton_symbol.png'">
@@ -216,13 +218,12 @@
                 <div style="text-align:right;"><b id="gram-bal">0.00 GRAM</b><br><span style="font-size:12px; color:var(--text-sub);" id="gram-usd">$0.00</span></div>
             </div>
 
-            <!-- OTTER COIN (PRICE HIDDEN - AIRDROP ONLY) -->
             <div class="token-item">
                 <div style="display:flex; align-items:center; gap:12px;">
                     <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #f59e0b, #d97706); display:flex; align-items:center; justify-content:center; font-size:18px;">🦦</div>
                     <div><b>Otter Coin</b><br><span style="font-size:12px; color:var(--accent-gold);">Airdrop Reward</span></div>
                 </div>
-                <div style="text-align:right;"><b id="otter-wallet-bal">0.00 OTTER</b><br><span style="font-size:11px; color:var(--text-sub);">Unlisted Token</span></div>
+                <div style="text-align:right;"><b id="otter-wallet-bal">0.00 OTTER</b><br><span style="font-size:11px; color:var(--text-sub);">Locked Until Listing</span></div>
             </div>
         </div>
     </div>
@@ -261,18 +262,23 @@
         <div class="top-nav-bar">
             <span><i class="fa-solid fa-arrow-left" style="cursor:pointer;" onclick="switchPage('wallet-page', document.getElementById('wallet-nav'))"></i> Back</span>
         </div>
-        <h2 style="text-align:center; margin: 10px 0 20px 0; font-size:26px;">Referrals</h2>
+        <h2 style="text-align:center; margin: 10px 0 20px 0; font-size:26px;">Referrals Program</h2>
         <div class="giveaway-card">
             <div>
-                <h1 class="giveaway-title">$1,500</h1>
-                <div class="giveaway-sub">Giveaway results soon</div>
-                <div class="giveaway-req">Invite 10+ Friends to be eligible ✨</div>
+                <h1 class="giveaway-title">0.01 USDT</h1>
+                <div class="giveaway-sub">Per Successful Friend Referral</div>
+                <div class="giveaway-req">Min. Withdraw Limit: 0.10 USDT (10 Friends) ✨</div>
             </div>
-            <div style="font-size:55px;">🏆</div>
+            <div style="font-size:45px;">💵</div>
         </div>
+        
         <div class="status-row">
-            <div>Invited Friends: <span id="friend-count">0</span></div>
+            <div>Invited Friends: <span id="friend-count" style="color:var(--accent-green);">0</span></div>
+            <div>Earned USDT: <span id="ref-earned-usdt" style="color:var(--accent-gold);">$0.00</span></div>
         </div>
+
+        <button class="btn-primary" id="withdraw-ref-btn" style="margin-bottom: 12px;" onclick="requestRefWithdrawal()">Withdraw Referral USDT (Min 0.1 USDT)</button>
+
         <div class="action-row" style="grid-template-columns: 1fr 1fr;">
             <button class="btn-action highlight" onclick="shareInviteLink()">Share</button>
             <button class="btn-action" onclick="copyInviteLink()">Copy invite link</button>
@@ -281,12 +287,10 @@
 
 </div>
 
-<!-- TWO-WAY CONVERT SWAP MODAL -->
+<!-- SWAP MODAL -->
 <div id="swap-modal" class="modal">
     <div class="modal-body">
         <h3>🔄 Instant Swap</h3>
-        
-        <!-- Pay Asset -->
         <div class="swap-box">
             <span style="font-size:11px; color:var(--text-sub);">You Pay:</span>
             <div class="swap-input-row" style="margin-top:4px;">
@@ -301,7 +305,6 @@
 
         <div style="text-align:center; margin:-4px 0;"><i class="fa-solid fa-arrow-down-long" style="color:var(--accent-green);"></i></div>
 
-        <!-- Receive Asset -->
         <div class="swap-box">
             <span style="font-size:11px; color:var(--text-sub);">You Receive (Estimated):</span>
             <div class="swap-input-row" style="margin-top:4px;">
@@ -315,7 +318,6 @@
         </div>
 
         <p style="font-size:11px; color:var(--text-sub); text-align:right;" id="swap-rate-text">Rate: --</p>
-
         <button class="btn-primary" onclick="alert('Swap Order Executed!'); closeModal('swap-modal');">Confirm Swap</button>
         <button class="btn-primary" style="background:#374151; color:#fff;" onclick="closeModal('swap-modal')">Cancel</button>
     </div>
@@ -325,7 +327,6 @@
 <div id="receive-modal" class="modal">
     <div class="modal-body" style="text-align:center;">
         <h3>Receive Crypto</h3>
-        
         <label style="font-size:12px; color:var(--text-sub); display:block; text-align:left; margin-top:10px;">Select Asset to Receive:</label>
         <select id="receive-token-select" onchange="updateReceiveQR()" style="width:100%; padding:10px; margin:6px 0 12px 0; background:#050505; color:#fff; border:1px solid var(--card-border); border-radius:8px;">
             <option value="TON">TON - Toncoin (TON Mainnet)</option>
@@ -335,7 +336,6 @@
 
         <div id="qrcode" style="display:flex; justify-content:center; margin:15px 0;"></div>
         <div style="background:#050505; padding:10px; border-radius:8px; font-size:11px; font-family:monospace; word-break:break-all; color:var(--accent-green);" id="modal-address">Generating...</div>
-        
         <p style="font-size:11px; color:var(--accent-gold); margin-top:8px;" id="network-warning-text">⚠️ Send only TON Network assets to this address.</p>
 
         <button class="btn-primary" onclick="navigator.clipboard.writeText(activeTonAddress); alert('Address Copied!')">📋 Copy Address</button>
@@ -343,16 +343,16 @@
     </div>
 </div>
 
-<!-- SEND / WITHDRAWAL MODAL WITH TOKEN SELECTOR -->
+<!-- SEND / WITHDRAWAL MODAL -->
 <div id="send-modal" class="modal">
     <div class="modal-body">
         <h3>Send / Withdraw Crypto</h3>
-
         <label style="font-size:12px; color:var(--text-sub);">Select Asset:</label>
         <select id="send-token-select" style="width:100%; padding:10px; margin:6px 0 12px 0; background:#050505; color:#fff; border:1px solid #374151; border-radius:8px;">
             <option value="TON">TON - Toncoin</option>
             <option value="USDT">USDT - Tether</option>
             <option value="GRAM">GRAM - Gram Coin</option>
+            <option value="OTTER" disabled>OTTER - (Locked Until Listing)</option>
         </select>
 
         <input type="text" id="send-to" placeholder="Recipient Wallet Address" style="width:100%; padding:10px; margin:8px 0; background:#050505; border:1px solid #374151; color:#fff; border-radius:8px; box-sizing:border-box;">
@@ -384,252 +384,3 @@
 </div>
 
 <!-- IMPORT MODAL -->
-<div id="import-modal" class="modal">
-    <div class="modal-body">
-        <h3>Import Seed Phrase</h3>
-        <textarea id="import-input" placeholder="Enter 12 words..." style="width:100%; height:80px; background:#050505; color:#fff; border:1px solid #374151; border-radius:8px; padding:8px; box-sizing:border-box;"></textarea>
-        <button class="btn-primary" onclick="processImport()">Import Wallet</button>
-        <button class="btn-primary" style="background:#374151; color:#fff;" onclick="closeModal('import-modal')">Cancel</button>
-    </div>
-</div>
-
-<!-- BOTTOM NAV MENU -->
-<div class="bottom-nav">
-    <button class="nav-item active" id="wallet-nav" onclick="switchPage('wallet-page', this)"><i class="fa-solid fa-wallet"></i>Wallet</button>
-    <button class="nav-item" onclick="switchPage('checkin-page', this)"><i class="fa-solid fa-calendar-check"></i>Daily Check-in</button>
-    <button class="nav-item" onclick="switchPage('rewards-page', this)"><i class="fa-solid fa-list-check"></i>Tasks</button>
-    <button class="nav-item" onclick="switchPage('history-page', this)"><i class="fa-solid fa-clock-rotate-left"></i>History</button>
-    <button class="nav-item" id="ref-nav" onclick="switchPage('referrals-page', this)"><i class="fa-solid fa-user-group"></i>Referrals</button>
-</div>
-
-<script>
-    let activeTonAddress = "";
-    let currentSeed = localStorage.getItem('user_seed') || "";
-    let myRefCode = "REF-" + Math.floor(100000 + Math.random() * 900000);
-    let otterBalance = parseFloat(localStorage.getItem('otter_bal') || '0');
-    
-    // Default Exchange Token Rates for Instant Swap
-    let tokenPrices = { TON: 5.50, USDT: 1.00, GRAM: 0.012 };
-
-    function switchPage(pageId, btn) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        if(btn) btn.classList.add('active');
-    }
-
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function openSwapModal() { 
-        document.getElementById('swap-modal').style.display = 'flex';
-        calculateSwap();
-    }
-
-    // COINGECKO LIVE EXCHANGE API
-    async function loadExchangePrices() {
-        try {
-            document.getElementById('live-price-status').innerText = "Syncing Exchange Rates...";
-            const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=the-open-network,tether,gram&vs_currencies=usd");
-            const prices = await res.json();
-
-            tokenPrices.TON = prices['the-open-network']?.usd || 5.50;
-            tokenPrices.USDT = prices['tether']?.usd || 1.00;
-            tokenPrices.GRAM = prices['gram']?.usd || 0.012;
-
-            document.getElementById('ton-usd').innerText = `$${tokenPrices.TON.toFixed(2)}`;
-            document.getElementById('usdt-usd').innerText = `$${tokenPrices.USDT.toFixed(2)}`;
-            document.getElementById('gram-usd').innerText = `$${tokenPrices.GRAM.toFixed(4)}`;
-            document.getElementById('live-price-status').innerText = "🟢 Exchange Live Rates Connected";
-        } catch (e) {
-            document.getElementById('live-price-status').innerText = "Rates updated";
-        }
-    }
-
-    // TWO-WAY SWAP CONVERSION LOGIC
-    function calculateSwap() {
-        const fromToken = document.getElementById('swap-from-token').value;
-        const toToken = document.getElementById('swap-to-token').value;
-        const fromAmount = parseFloat(document.getElementById('swap-from-amount').value) || 0;
-
-        if (fromToken === toToken) {
-            document.getElementById('swap-to-amount').value = fromAmount;
-            document.getElementById('swap-rate-text').innerText = `1 ${fromToken} = 1 ${toToken}`;
-            return;
-        }
-
-        const fromUSD = tokenPrices[fromToken] || 1;
-        const toUSD = tokenPrices[toToken] || 1;
-        
-        const converted = (fromAmount * fromUSD) / toUSD;
-        document.getElementById('swap-to-amount').value = converted.toFixed(4);
-        
-        const rate = fromUSD / toUSD;
-        document.getElementById('swap-rate-text').innerText = `1 ${fromToken} ≈ ${rate.toFixed(4)} ${toToken}`;
-    }
-
-    // LOCAL STANDALONE WEB3 TON ADDRESS GENERATOR
-    async function deriveTonMainnetAddress(seedPhrase) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(seedPhrase.trim().toLowerCase());
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        
-        let rawHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        let base64Part = btoa(rawHex).replace(/\+/g, '-').replace(/\//g, '_').substring(0, 32);
-        
-        return "EQ" + base64Part;
-    }
-
-    function generateBip39Seed() {
-        const wordList = ["apple", "banana", "crypto", "dragon", "eagle", "forest", "galaxy", "harvest", "island", "jungle", "kingdom", "lemon", "mountain", "ocean", "planet", "quantum", "river", "shadow", "timber", "universe", "valley", "window", "yellow", "zodiac"];
-        let words = [];
-        for(let i=0; i<12; i++) {
-            words.push(wordList[Math.floor(Math.random() * wordList.length)]);
-        }
-        return words.join(" ");
-    }
-
-    async function initWalletFromSeed(seed) {
-        if(!seed) return;
-        try {
-            activeTonAddress = await deriveTonMainnetAddress(seed);
-
-            const statusElem = document.getElementById('wallet-status');
-            statusElem.innerText = "🟢 " + activeTonAddress.substring(0, 4) + "..." + activeTonAddress.substring(activeTonAddress.length - 4);
-            statusElem.style.background = "rgba(34,197,94,0.15)";
-            statusElem.style.color = "#22c55e";
-
-            document.getElementById('setup-banner').style.display = "none";
-            document.getElementById('otter-wallet-bal').innerText = otterBalance.toFixed(2) + " OTTER";
-
-            loadExchangePrices();
-        } catch (err) {
-            alert("Invalid Seed Phrase!");
-        }
-    }
-
-    function checkWalletState() {
-        if(currentSeed) {
-            initWalletFromSeed(currentSeed);
-        } else {
-            document.getElementById('wallet-status').innerText = "🔴 Unconnected";
-            document.getElementById('setup-banner').style.display = "block";
-        }
-    }
-
-    async function createNewWallet() {
-        try {
-            currentSeed = generateBip39Seed();
-            document.getElementById('seed-words-box').innerText = currentSeed;
-            document.getElementById('seed-modal').style.display = "flex";
-        } catch (e) {
-            alert("Failed to generate seed phrase.");
-        }
-    }
-
-    function confirmSeedSaved() {
-        localStorage.setItem('user_seed', currentSeed);
-        closeModal('seed-modal');
-        checkWalletState();
-    }
-
-    function showSavedSeed() {
-        closeModal('backup-modal');
-        document.getElementById('seed-words-box').innerText = currentSeed || "No Seed Available";
-        document.getElementById('seed-modal').style.display = "flex";
-    }
-
-    function openImportModal() { document.getElementById('import-modal').style.display = "flex"; }
-
-    function processImport() {
-        const val = document.getElementById('import-input').value.trim();
-        if(val.split(/\s+/).length < 12) return alert('Enter valid 12 words!');
-        currentSeed = val;
-        localStorage.setItem('user_seed', currentSeed);
-        closeModal('import-modal');
-        checkWalletState();
-    }
-
-    function openReceiveModal() {
-        if(!activeTonAddress) return alert("Create/Import Wallet First!");
-        updateReceiveQR();
-        document.getElementById('receive-modal').style.display = "flex";
-    }
-
-    function updateReceiveQR() {
-        const selectedToken = document.getElementById('receive-token-select').value;
-        document.getElementById('modal-address').innerText = activeTonAddress;
-        document.getElementById('network-warning-text').innerText = `⚠️ Send only ${selectedToken} (TON Network) to this address.`;
-
-        let qrcodeDiv = document.getElementById("qrcode");
-        qrcodeDiv.innerHTML = "";
-        new QRCode(qrcodeDiv, { text: activeTonAddress, width: 140, height: 140 });
-    }
-
-    function openSendModal() {
-        if(!activeTonAddress) return alert("Create/Import Wallet First!");
-        document.getElementById('send-modal').style.display = "flex";
-    }
-
-    function processSend() {
-        const selectedToken = document.getElementById('send-token-select').value;
-        const toAddress = document.getElementById('send-to').value.trim();
-        const amount = document.getElementById('send-amount').value;
-
-        if(!toAddress || !amount) return alert("Please fill address and amount!");
-        alert(`Successfully initiated Withdrawal of ${amount} ${selectedToken} to ${toAddress}`);
-        closeModal('send-modal');
-    }
-
-    // DAILY CHECK-IN SYSTEM
-    function checkDailyStatus() {
-        const lastClaimDate = localStorage.getItem('last_checkin_date');
-        const todayDate = new Date().toDateString();
-        const btn = document.getElementById('daily-claim-btn');
-
-        if (lastClaimDate === todayDate) {
-            btn.disabled = true;
-            btn.innerText = "Claimed Today";
-        } else {
-            btn.disabled = false;
-            btn.innerText = "Claim Daily Check-in";
-        }
-    }
-
-    function claimDailyReward() {
-        const todayDate = new Date().toDateString();
-        otterBalance += 10;
-        
-        localStorage.setItem('otter_bal', otterBalance);
-        localStorage.setItem('last_checkin_date', todayDate);
-        
-        document.getElementById('otter-wallet-bal').innerText = otterBalance.toFixed(2) + " OTTER";
-        alert("🎉 Daily Check-in Claimed! +10 OTTER");
-        
-        checkDailyStatus();
-    }
-
-   // REFERRALS (UPDATED WITH BOT LINK)
-    function shareInviteLink() {
-        const inviteUrl = `https://t.me/otter_wallet_app_bot?start=${myRefCode}`;
-        if (navigator.share) {
-            navigator.share({ title: 'Otter Wallet', url: inviteUrl });
-        } else {
-            navigator.clipboard.writeText(inviteUrl);
-            alert("Invite link copied!");
-        }
-    }
-
-    function copyInviteLink() {
-        navigator.clipboard.writeText(`https://t.me/otter_wallet_app_bot?start=${myRefCode}`);
-        alert("Invite link copied to clipboard!");
-    }
-
-    // Init App
-    window.addEventListener('load', () => {
-        checkWalletState();
-        checkDailyStatus();
-    });
-</script>
-
-</body>
-</html>
